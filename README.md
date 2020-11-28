@@ -20,7 +20,7 @@ Create a config directory for your custom configs:
 mkdir conf.d
 ```
 
-And one or many `.conf` files in that directory, e.g. `company.com.conf`:
+Add one or many `.conf` files in that directory, e.g. `company.com.conf`:
 
 ```nginx
 nginx
