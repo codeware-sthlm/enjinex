@@ -1,5 +1,5 @@
 FROM nginx
-LABEL maintainer="Elliot Saba <staticfloat@gmail.com>, Valder Gallo <valergallo@gmail.com>, Bruno Zell <bruno.zzell@gmail.com>"
+LABEL maintainer="Håkan Ströberg <hakan.stroberg@trekki.se>"
 
 VOLUME /etc/letsencrypt
 EXPOSE 80

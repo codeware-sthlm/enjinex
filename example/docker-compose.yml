@@ -1,15 +1,21 @@
-version: '3'
+version: "3.8"
 
 services:
-  proxy:
-    image: staticfloat/nginx-certbot
-    restart: always
+  nginx:
+    image: abstract-tlabs/nginx-certbot
+    name: nginx-proxy
+    restart: unless-stopped
     environment:
-      CERTBOT_EMAIL: "your.email@example.com"
+      CERTBOT_EMAIL: owner@company.com
+      ENVSUBST_VARS: FQDN
+      FQDN: company.com
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - ./certbot_extra_domains:/etc/nginx/certbot/extra_domains:ro
+      - letsencrypt:/etc/letsencrypt
 
+volumes:
+  letsencrypt:
