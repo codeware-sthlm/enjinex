@@ -1,5 +1,7 @@
 # docker-nginx-certbot
 
+![Docker Container Registry](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/Docker%20Container%20Registry/badge.svg)
+
 Create and automatically renew website SSL certificates using the free [letsencrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [nginx](https://www.nginx.com/) webserver.
 
 This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to tailor made the image to the needs of our organization.

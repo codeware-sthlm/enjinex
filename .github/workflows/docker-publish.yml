@@ -1,18 +1,13 @@
 name: Docker Container Registry
 
-# TODO Only trigger when files related toch docker image was changed
+# TODO Only trigger when files related touch docker image was changed
 
 on:
   push:
-    # Publish `master` as Docker `latest` image.
     branches:
       - master
-
-    # Publish `v1.2.3` tags as releases.
     tags:
       - v*
-
-  # Run tests for any PRs.
   pull_request:
 
 env:
@@ -20,29 +15,21 @@ env:
   IMAGE_NAME: nginx-certbot
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-  # TODO Create valid tests
   test:
+    name: Test
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Run tests
+      - name: Run build test
+        uses: actions/checkout@v2
         run: |
           cd src
           docker build . --file Dockerfile
 
-  # Push image to GitHub Container Registry.
-  # See also https://docs.docker.com/docker-hub/builds/
   push:
-    # Ensure test job passes before pushing image.
+    name: Build and push
     needs: test
-
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-
     steps:
       - uses: actions/checkout@v2
 
@@ -76,15 +63,9 @@ jobs:
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
-  # Notify via slack for master events or all failures.
-  notify:
-    runs-on: ubuntu-latest
-    if: github.branch == 'master' || ${{ failure() }}
-
-    steps:
-      - name: Slack Notification
+      - name: Build notification
         uses: lazy-actions/slatify@v3.0.0
-        if: always()
+        if: github.branch == 'master' || ${{ failure() }}
         with:
           type: ${{ job.status }}
           job_name: "${{ github.workflow }}"
