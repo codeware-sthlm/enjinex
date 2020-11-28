@@ -1,6 +1,6 @@
 # docker-nginx-certbot
 
-![Docker Container Registry](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/Docker%20Container%20Registry/badge.svg)
+![.github/workflows/docker-publish.yml](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/.github/workflows/docker-publish.yml/badge.svg?branch=master)
 
 Create and automatically renew website SSL certificates using the free [letsencrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [nginx](https://www.nginx.com/) webserver.
 
