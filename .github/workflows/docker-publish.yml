@@ -1,5 +1,7 @@
 name: Docker Container Registry
 
+# TODO Only trigger when files related toch docker image was changed
+
 on:
   push:
     # Publish `master` as Docker `latest` image.
@@ -29,12 +31,8 @@ jobs:
 
       - name: Run tests
         run: |
-          if [ -f docker-compose.test.yml ]; then
-            docker-compose --file docker-compose.test.yml build
-            docker-compose --file docker-compose.test.yml run sut
-          else
-            docker build . --file Dockerfile
-          fi
+          cd src
+          docker build . --file Dockerfile
 
   # Push image to GitHub Container Registry.
   # See also https://docs.docker.com/docker-hub/builds/
@@ -49,7 +47,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+        run: |
+          cd src
+          docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
