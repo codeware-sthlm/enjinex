@@ -5,7 +5,7 @@ trap "exit" INT TERM
 trap "kill 0" EXIT
 
 # Source in util.sh so we can have our nice tools
-source /scripts/util.sh
+. $(cd $(dirname $0); pwd)/util.sh
 
 # first include any user configs if they've been mounted
 template_user_configs
@@ -19,20 +19,20 @@ NGINX_PID=$!
 
 # Lastly, run startup scripts
 for f in /scripts/startup/*.sh; do
-  if [ -x "$f" ]; then
-    echo "Running startup script $f"
-    $f
-  fi
+    if [ -x "$f" ]; then
+        echo "Running startup script $f"
+        $f
+    fi
 done
 echo "Done with startup"
 
 # Instead of trying to run `cron` or something like that, just sleep and run `certbot`.
-while true; do
+while [ true ]; do
   # Make sure we do not run container empty (without nginx process).
   # If nginx quit for whatever reason then stop the container.
   # Leave the restart decision to the container orchestration.
-  if ! ps aux | grep --quiet '[n]ginx'; then
-    exit 1
+  if ! ps aux | grep --quiet [n]ginx ; then
+      exit 1
   fi
 
   # Run certbot, tell nginx to reload its config

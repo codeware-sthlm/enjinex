@@ -1,10 +1,7 @@
 #!/bin/bash
 
 # Source in util.sh so we can have our nice tools
-. $(
-  cd $(dirname $0)
-  pwd
-)/util.sh
+. $(cd $(dirname $0); pwd)/util.sh
 
 # We require an email to register the ssl certificate for
 if [ -z "$CERTBOT_EMAIL" ]; then
@@ -15,13 +12,13 @@ fi
 exit_code=0
 # Loop over every domain we can find
 for domain in $(parse_domains); do
-  if is_renewal_required "$domain"; then
-    extra_domains=$(parse_extra_domains "$domain")
+  if is_renewal_required $domain; then
+    extra_domains=$(parse_extra_domains $domain)
     renewal_domains="$domain $extra_domains"
     # Renewal required for this doman.
     # Last one happened over a week ago (or never)
-    if ! get_certificate "$renewal_domains" "$CERTBOT_EMAIL"; then
-      error "Cerbot failed for ${renewal_domains}. Check the logs for details."
+    if ! get_certificate "$renewal_domains" $CERTBOT_EMAIL; then
+      error "Cerbot failed for $renewal_domain. Check the logs for details."
       exit_code=1
     fi
   else
