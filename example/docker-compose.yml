@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
   nginx:
-    image: abstract-tlabs/nginx-certbot
-    name: nginx-proxy
+    image: docker pull ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com

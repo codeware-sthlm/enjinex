@@ -1,6 +1,6 @@
 # docker-nginx-certbot
 
-![.github/workflows/docker-publish.yml](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/.github/workflows/docker-publish.yml/badge.svg?branch=master)
+![Docker Container Registry](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/Docker%20Container%20Registry/badge.svg)
 
 Create and automatically renew website SSL certificates using the free [letsencrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [nginx](https://www.nginx.com/) webserver.
 
@@ -46,9 +46,10 @@ Wrap this all up with a `docker-compose.yml` file:
 
 ```yml
 version: "3.8"
+
 services:
   nginx:
-    image: abstract-tlabs/nginx-certbot
+    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com
@@ -61,6 +62,10 @@ services:
 
 volumes:
   letsencrypt:
+```
+
+```sh
+docker pull ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
 ```
 
 ```sh
@@ -87,9 +92,10 @@ server {
 
 ```yml
 version: "3.8"
+
 services:
   frontend:
-    image: abstract-tlabs/nginx-certbot
+    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com
@@ -127,9 +133,10 @@ Finally setup another volume to provide these files to the container.
 
 ```yml
 version: "3.8"
+
 services:
   frontend:
-    image: abstract-tlabs/nginx-certbot
+    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com
@@ -163,7 +170,7 @@ docker run --name nginx-proxy:company.com --rm --detach
            --publish "443:443" \
            --restart unless-stopped \
            --network letsencrypt \
-           abstract-tlabs/nginx-certbot
+           ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
 ```
 
 ## Reference sites
