@@ -6,6 +6,16 @@ Create and automatically renew website SSL certificates using the free [letsencr
 
 This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to tailor made the image to the needs of our organization.
 
+## Supported platforms
+
+Docker images can be found [here](https://github.com/orgs/abstract-tlabs/packages/container/package/docker-nginx-certbot%2Fnginx-certbot), supporting the following platforms.
+
+| Platform     | Architecture   | Computers                                |
+| ------------ | -------------- | ---------------------------------------- |
+| linux/amd64  | AMD 64-bit x86 | Most today and the default Docker choice |
+| linux/arm64  | ARM 64-bit     | Raspberry Pi 3 _(and later)_             |
+| linux/arm/v7 | ARM 43-bit     | Raspberry Pi 2 Model B                   |
+
 ## Prerequisites
 
 The server using this image must be reached from public for the certificates to be verified and created.
@@ -49,7 +59,7 @@ version: "3.8"
 
 services:
   nginx:
-    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
+    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com
@@ -65,7 +75,7 @@ volumes:
 ```
 
 ```sh
-docker pull ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
+docker pull ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
 ```
 
 ```sh
@@ -95,7 +105,7 @@ version: "3.8"
 
 services:
   frontend:
-    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
+    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com
@@ -136,7 +146,7 @@ version: "3.8"
 
 services:
   frontend:
-    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
+    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@company.com
@@ -170,7 +180,7 @@ docker run --name nginx-proxy:company.com --rm --detach
            --publish "443:443" \
            --restart unless-stopped \
            --network letsencrypt \
-           ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
+           ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
 ```
 
 ## Reference sites
