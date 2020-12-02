@@ -10,8 +10,6 @@ on:
       - "v*"
   pull_request:
 
-env:
-
 jobs:
   main:
     runs-on: ubuntu-latest
