@@ -14,7 +14,7 @@ Docker images can be found [here](https://github.com/orgs/abstract-tlabs/package
 | ------------ | -------------- | ---------------------------------------- |
 | linux/amd64  | AMD 64-bit x86 | Most today and the default Docker choice |
 | linux/arm64  | ARM 64-bit     | Raspberry Pi 3 _(and later)_             |
-| linux/arm/v7 | ARM 43-bit     | Raspberry Pi 2 Model B                   |
+| linux/arm/v7 | ARM 64-bit     | Raspberry Pi 2 Model B                   |
 
 ## Prerequisites
 
