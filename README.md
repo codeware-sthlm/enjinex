@@ -1,6 +1,6 @@
 # docker-nginx-certbot
 
-![Docker Container Registry](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/Docker%20Container%20Registry/badge.svg)
+![Continuous integration](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/ci/badge.svg)
 
 Create and automatically renew website SSL certificates using the free [letsencrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [nginx](https://www.nginx.com/) webserver.
 
@@ -177,9 +177,12 @@ docker run --name nginx-proxy:company.com --rm --detach
 
 - [Let's Encrypt](https://letsencrypt.org/)
 - [certbot](https://certbot.eff.org/)
+- [GitHub Actions using Docker buildx](https://github.com/marketplace/actions/build-and-push-docker-images#usage)
 
 ## TODOs
 
 - Verify `docker run` command options are correct and it all works
 - Provide `nginx.conf` file instead of using the default config to apply gzip
 - Implement `.env` files as optional alternative
+- Add workflow action tests
+- Only trigger action when files related to docker image was changed
