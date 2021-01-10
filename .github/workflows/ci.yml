@@ -75,7 +75,7 @@ jobs:
 
       - name: Slack
         uses: lazy-actions/slatify@v3.0.0
-        if: ${{ github.event_name == 'push tags' || failure() }}
+        if: ${{ github.event_name == 'push tags' }} #TODO: apply failure() when stable
         with:
           type: ${{ job.status }}
           job_name: '${{ github.workflow }}'
