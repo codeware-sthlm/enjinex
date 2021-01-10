@@ -55,7 +55,7 @@ The name if the file is irrelevant but it must end with `.conf`.
 Wrap this all up with a `docker-compose.yml` file:
 
 ```yml
-version: "3.8"
+version: '3.8'
 
 services:
   nginx:
@@ -64,8 +64,8 @@ services:
     environment:
       CERTBOT_EMAIL: owner@company.com
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
@@ -101,7 +101,7 @@ server {
 ```
 
 ```yml
-version: "3.8"
+version: '3.8'
 
 services:
   frontend:
@@ -113,8 +113,8 @@ services:
       ENVSUBST_VARS: FQDN
       FQDN: company.com
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
@@ -125,7 +125,7 @@ volumes:
 
 ## Extra domains
 
-In case the primary domain has some more domains, e.g. sub domains, those could also be secured within the domain service scope.
+In case the primary domain has some more domains, e.g. sub domains, those could also be secured within the domain service scope. This will most likely require a wildcard certificate.
 
 Create a new root folder `certbot_extra_domains`.
 
@@ -142,7 +142,7 @@ echo "mail.company.com" > certbot_extra_domains/company.com
 Finally setup another volume to provide these files to the container.
 
 ```yml
-version: "3.8"
+version: '3.8'
 
 services:
   frontend:
@@ -153,8 +153,8 @@ services:
       ENVSUBST_VARS: FQDN
       FQDN: company.com
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - ./certbot_extra_domains:/etc/nginx/certbot/extra_domains:ro
@@ -193,6 +193,7 @@ docker run --name nginx-proxy:company.com --rm --detach
 
 - Verify `docker run` command options are correct and it all works
 - Provide `nginx.conf` file instead of using the default config to apply gzip
+- Better security, [https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/](https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/)
 - Implement `.env` files as optional alternative
 - Add workflow action tests
 - Only trigger action when files related to docker image was changed
