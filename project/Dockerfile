@@ -7,14 +7,14 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 # Install packages for build app step
-RUN yarn --frozen-lockfile
+RUN yarn --frozen-lockfile --network-timeout 1000000
 
 # Build app
 COPY . .
 RUN npx nx run-many --target=build --configuration=production --all
 
 # Keep prod only packages for deployment
-RUN yarn --frozen-lockfile --prod
+RUN yarn --frozen-lockfile --prod --network-timeout 1000000
 
 ### STAGE 2: Docker ###
 FROM nginx:mainline
