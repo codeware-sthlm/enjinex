@@ -23,8 +23,8 @@
 		}
 	},
 	"projects": {
-		"https": {
-			"tags": ["scope:apps", "type:app"]
+		"init": {
+			"tags": ["scope:apps", "type:apps"]
 		},
 		"certbot": {
 			"tags": ["scope:certbot", "type:app-lib"]
@@ -37,6 +37,9 @@
 		},
 		"domain": {
 			"tags": ["scope:domain", "type:app-lib"]
+		},
+		"nginx": {
+			"tags": ["scope:nginx", "type:app-lib"]
 		},
 		"util": {
 			"tags": ["scope:util", "type:util"]

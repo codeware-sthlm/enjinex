@@ -1,20 +1,20 @@
 {
 	"version": 2,
 	"projects": {
-		"https": {
-			"root": "apps/https",
-			"sourceRoot": "apps/https/src",
+		"init": {
+			"root": "apps/init",
+			"sourceRoot": "apps/init/src",
 			"projectType": "application",
-			"prefix": "tx",
+			"prefix": "init",
 			"targets": {
 				"build": {
 					"executor": "@nrwl/node:build",
 					"outputs": ["{options.outputPath}"],
 					"options": {
-						"outputPath": "dist/apps/https",
-						"main": "apps/https/src/main.ts",
-						"tsConfig": "apps/https/tsconfig.app.json",
-						"assets": ["apps/https/src/assets"]
+						"outputPath": "dist/apps/init",
+						"main": "apps/init/src/main.ts",
+						"tsConfig": "apps/init/tsconfig.app.json",
+						"assets": ["apps/init/src/assets"]
 					},
 					"configurations": {
 						"production": {
@@ -24,8 +24,8 @@
 							"sourceMap": false,
 							"fileReplacements": [
 								{
-									"replace": "apps/https/src/environments/environment.ts",
-									"with": "apps/https/src/environments/environment.prod.ts"
+									"replace": "apps/init/src/environments/environment.ts",
+									"with": "apps/init/src/environments/environment.prod.ts"
 								}
 							]
 						}
@@ -34,20 +34,20 @@
 				"serve": {
 					"executor": "@nrwl/node:execute",
 					"options": {
-						"buildTarget": "https:build"
+						"buildTarget": "init:build"
 					}
 				},
 				"lint": {
 					"executor": "@nrwl/linter:eslint",
 					"options": {
-						"lintFilePatterns": ["apps/https/**/*.ts"]
+						"lintFilePatterns": ["apps/init/**/*.ts"]
 					}
 				},
 				"test": {
 					"executor": "@nrwl/jest:jest",
-					"outputs": ["coverage/apps/https"],
+					"outputs": ["coverage/apps/init"],
 					"options": {
-						"jestConfig": "apps/https/jest.config.js",
+						"jestConfig": "apps/init/jest.config.js",
 						"passWithNoTests": true
 					}
 				}
@@ -178,10 +178,31 @@
 					}
 				}
 			}
+		},
+		"nginx": {
+			"root": "libs/nginx",
+			"sourceRoot": "libs/nginx/src",
+			"projectType": "library",
+			"targets": {
+				"lint": {
+					"executor": "@nrwl/linter:eslint",
+					"options": {
+						"lintFilePatterns": ["libs/nginx/**/*.ts"]
+					}
+				},
+				"test": {
+					"executor": "@nrwl/jest:jest",
+					"outputs": ["coverage/libs/nginx"],
+					"options": {
+						"jestConfig": "libs/nginx/jest.config.js",
+						"passWithNoTests": true
+					}
+				}
+			}
 		}
 	},
 	"cli": {
 		"defaultCollection": "@nrwl/node"
 	},
-	"defaultProject": "https"
+	"defaultProject": "init"
 }
