@@ -1,6 +1,5 @@
-// eslint-disable-next-line no-undef
 module.exports = {
-	displayName: 'https',
+	displayName: 'init',
 	preset: '../../jest.preset.js',
 	globals: {
 		'ts-jest': {
@@ -11,5 +10,5 @@ module.exports = {
 		'^.+\\.[tj]s$': 'ts-jest'
 	},
 	moduleFileExtensions: ['ts', 'js', 'html'],
-	coverageDirectory: '../../coverage/apps/https'
+	coverageDirectory: '../../coverage/apps/init'
 };

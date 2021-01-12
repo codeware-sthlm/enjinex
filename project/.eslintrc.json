@@ -48,6 +48,15 @@
 								]
 							},
 							{
+								"sourceTag": "scope:nginx",
+								"onlyDependOnLibsWithTags": [
+									"scope:nginx",
+									"scope:store",
+									"type:setup",
+									"type:util"
+								]
+							},
+							{
 								"sourceTag": "scope:util",
 								"onlyDependOnLibsWithTags": ["scope:util"]
 							}

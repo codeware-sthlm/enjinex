@@ -1,6 +1,6 @@
 import { app } from './app/app';
 
 /**
- * Start https app
+ * Start init app
  */
 app();

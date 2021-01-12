@@ -6,17 +6,6 @@ WORKDIR /app
 # Install dependencies
 COPY package.json yarn.lock ./
 
-# Python is not included in alpine image and must be installed manually
-
-# --no-cache: download package index on-the-fly, no need to cleanup afterwards
-# --virtual: bundle packages, remove whole bundle at once, when done
-# RUN apk --no-cache --update --virtual build-dependencies add \
-#     python \
-#     make \
-#     g++ \
-#     && npm ci --no-progress --silent --loglevel=error \
-#     && apk del build-dependencies
-
 # Install packages for build app step
 RUN yarn --frozen-lockfile
 
@@ -25,7 +14,7 @@ COPY . .
 RUN npx nx run-many --target=build --configuration=production --all
 
 # Keep prod only packages for deployment
-RUN yarn --prod
+RUN yarn --frozen-lockfile --prod
 
 ### STAGE 2: Docker ###
 FROM nginx:mainline
@@ -47,17 +36,16 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/* && \
     # Create certbot directories and set proper permissions
     mkdir -p /var/www/letsencrypt && \
-    chown www-data:www-data -R /var/www && \
+    chown -R www-data:www-data /var/www && \
+    # Remove nginx symlink logs to support node spawn on all platforms (logs to /dev/std* needs more tweeks)
+    rm -f /var/log/nginx/access.log && \
+    rm -f /var/log/nginx/error.log && \
     # Remove default nginx configurations
     rm -f /etc/nginx/conf.d/* && \
     echo "NodeJS Version:" "$(node -v)" && \
     echo "NPM Version:" "$(npm -v)"
 
-# Copy scripts
-COPY scripts/ /scripts
-RUN chmod +x -R /scripts
-
-# Copy nginx configurations
+# Copy nginx configurations;
 # Make sure ACME challenge requests are verified and then redirects HTTP request to HTTPS
 COPY nginx_conf.d/ /etc/nginx/conf.d/
 
@@ -65,11 +53,11 @@ COPY nginx_conf.d/ /etc/nginx/conf.d/
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/node_modules /app/node_modules
 
-# Setup persistent volume for created certificates
+# Setup persistent volumes
 VOLUME /etc/letsencrypt
+VOLUME /var/log/nginx
 
 EXPOSE 80
 EXPOSE 443
 
-CMD ["/bin/bash", "/scripts/entrypoint.sh"]
-#CMD ["node", "/app/dist/apps/https/main.js"]
+CMD ["node", "/app/dist/apps/init/main.js"]

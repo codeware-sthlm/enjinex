@@ -13,6 +13,8 @@ export interface Config {
 	letsEncrypt: {
 		productionSite: string;
 		stagingSite: string;
+		/** Time in seconds between renewal attempts */
+		renewalTimer: number;
 		rsaKeySize: number;
 		webRoot: string;
 	};
@@ -37,6 +39,7 @@ export function getConfig(): Config {
 		letsEncrypt: {
 			productionSite: 'https://acme-v02.api.letsencrypt.org/directory',
 			stagingSite: 'https://acme-staging-v02.api.letsencrypt.org/directory',
+			renewalTimer: 60 * 60 * 24,
 			rsaKeySize: 2048,
 			webRoot: '/var/www/letsencrypt'
 		},
