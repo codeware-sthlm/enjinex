@@ -12,6 +12,7 @@ import { execute } from '@tx/util';
  *
  * @todo
  * #TODO: Implement support for `optionalDomains`
+ * #TODO: Implement support for `--dry-run`
  */
 export const requestCertificate = async (
 	primaryDomain: string,
@@ -39,8 +40,7 @@ export const requestCertificate = async (
         --cert-name ${primaryDomain} \
         ${includeDomainArg} \
         ${forceRenewal} \
-        --debug \
-        --dry-run`; // FIXME: Control via environment variable
+        --debug`;
 
 	// Execute command and hence request the certificate
 	const status = await execute(command);

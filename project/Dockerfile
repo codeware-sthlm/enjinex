@@ -60,4 +60,5 @@ VOLUME /var/log/nginx
 EXPOSE 80
 EXPOSE 443
 
+# Start Node init app
 CMD ["node", "/app/dist/apps/init/main.js"]

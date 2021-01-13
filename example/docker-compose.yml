@@ -1,20 +1,19 @@
-# Make sure this file is in the same folder as Dockerfile
 version: '3.8'
 
 services:
   nginx:
-    # To use the latest image, use 'image' instead of 'build'
     build: .
-    #image: docker pull ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@domain.com
     ports:
-      - '80:80'
-      - '443:443'
+      - 80:80
+      - 443:443
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
+      - nginx:/var/log/nginx
 
 volumes:
   letsencrypt:
+  nginx:

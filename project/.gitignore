@@ -40,6 +40,4 @@ Thumbs.db
 
 # Docker
 letsencrypt
-
-# Local test
-docker-*.sh
+nginx
