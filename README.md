@@ -2,13 +2,30 @@
 
 ![Continuous integration](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/ci/badge.svg?branch=master)
 
-Create and automatically renew website SSL certificates using the free [letsencrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [nginx](https://www.nginx.com/) webserver.
+Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
-This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to tailor made the image to the needs of our organization.
+| Features                                           |                      |
+| -------------------------------------------------- | -------------------- |
+| Distributed as Docker image                        | :white_check_mark:   |
+| Built with Node                                    | :white_check_mark:   |
+| Type safe code with TypeScript                     | :white_check_mark:   |
+| Multi-platform support                             | :white_check_mark:   |
+| Node signal handling to prevent zombies            | :white_check_mark:   |
+| Configure multiple domains                         | :white_check_mark:   |
+| Automatic Let's Encrypt certificate renewal        | :white_check_mark:   |
+| Persistent volumes for certificates and Nginx logs | :white_check_mark:   |
+| Monorepo tooling by [Nx](nx.dev)                   | :white_check_mark:   |
+| Unit tests                                         | :white_check_mark:   |
+| Auto linting                                       | :white_check_mark:   |
+| Highest level SSL security                         | :white_large_square: |
+| Diffie-Hellman parameters                          | :white_large_square: |
+| Group domains by a common domain owner             | :white_large_square: |
+| Email renewal events to domain owner               | :white_large_square: |
+| Compodoc technical docs                            | :white_large_square: |
 
-## Supported platforms
+## :whale: &nbsp; Supported platforms
 
-Docker images can be found [here](https://github.com/orgs/abstract-tlabs/packages/container/package/docker-nginx-certbot%2Fnginx-certbot), supporting the following platforms.
+Deployed Docker images can be found [here](https://github.com/orgs/abstract-tlabs/packages/container/package/docker-nginx-certbot%2Fnginx-certbot), supporting the following platforms:
 
 | Platform     | Architecture   | Computers                                |
 | ------------ | -------------- | ---------------------------------------- |
@@ -16,31 +33,40 @@ Docker images can be found [here](https://github.com/orgs/abstract-tlabs/package
 | linux/arm64  | ARM 64-bit     | Raspberry Pi 3 _(and later)_             |
 | linux/arm/v7 | ARM 64-bit     | Raspberry Pi 2 Model B                   |
 
-## Prerequisites
+## :dart: &nbsp; Usage
 
-The server using this image must be reached from public for the certificates to be verified and created.
+### Prerequisites
+
+The computer using this image must be reached from public for the certificates to be verified and created.
 
 Make sure that your domain name is entered correctly and the DNS A/AAAA record(s) for that domain contain(s) the right IP address. Additionally, check that your computer has a publicly routable IP address and that no firewalls are preventing the server from communicating with the client.
 
-## Usage
+### Environment Variables
 
-> A setup with all features applied could be explored in `example` folder.
+#### Required
 
-Create a config directory for your custom configs:
+- `CERTBOT_EMAIL`: Usually the domain owner's email, used by Let's Encrypt as contact email in case of any security issues.
 
-```sh
-mkdir conf.d
-```
+### Persistent Volumes
 
-Add one or many `.conf` files in that directory, e.g. `company.com.conf`:
+- `/etc/letsencrypt`: Generated domain certificates stored in domain specific folders.
+
+  _Stored as Docker volume: `letsencrypt`_
+
+- `/var/log/nginx`: Nginx access and error logs.
+
+  _Stored as Docker volume: `nginx`_
+
+### Domain Configurations
+
+Every domain to request certificates for must be stored in folder `conf.d`. The file should be named e.g. `domain.com.conf` and contain data at minimum:
 
 ```nginx
-nginx
 server {
-  listen              443 ssl;
-  server_name         company.com;
-  ssl_certificate     /etc/letsencrypt/live/company.com/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/company.com/privkey.pem;
+  listen              443 ssl default_server;
+  server_name         domain.com;
+  ssl_certificate     /etc/letsencrypt/live/domain.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/domain.com/privkey.pem;
 
   location / {
     ...
@@ -48,151 +74,172 @@ server {
 }
 ```
 
-The name if the file is irrelevant but it must end with `.conf`.
+> &nbsp;
+>
+> :wave: &nbsp; **INFO**
+>
+> It's very important that the domain name (e.g. `my-site.io`) match for:
+>
+> - File name `my-site.io.conf`
+> - Configuration property `server_name` to be `my-site.io`
+> - Configuration properties
+>   - `ssl_certificate` to be `/etc/letsencrypt/live/my-site.io/fullchain.pem`
+>   - `ssl_certificate_key` to be `/etc/letsencrypt/live/my-site.io/privkey.pem`
+>
+> &nbsp;
 
-> Note: using a `server` block that listens on port 80 may cause issues with renewal. This container will already handle forwarding to port 443, so they are unnecessary. See `nginx_conf.d/certbot.conf`.
+&nbsp;
 
-Wrap this all up with a `docker-compose.yml` file:
+> &nbsp;
+>
+> :fire: &nbsp; **WARNING**
+>
+> Using a `server` block that listens on port 80 may cause issues with renewal. This container will already handle forwarding to port 443, so they are unnecessary. See `nginx_conf.d/http.conf`.
+>
+> &nbsp;
+
+### Build and run yourself
+
+If you have pulled the repository and are experimenting or just whats to build it yourself, the image could be built like this:
+
+```sh
+docker build -t nginx-certbot:local .
+```
+
+The command must be executed inside `project/` folder.
+
+Prior to running the image the domains of interest must be created inside `conf.d/` folder. Then the container is launched like this:
+
+```sh
+docker run -it --rm -d \
+           -p 80:80 -p 443:443 \
+           --env CERTBOT_EMAIL=owner@domain.com \
+           -v "$(pwd)/conf.d:/etc/nginx/user.conf.d:ro" \
+           -v "$(pwd)/letsencrypt:/etc/letsencrypt" \
+           -v "$(pwd)/nginx:/var/log/nginx" \
+           --name nginx-certbot \
+           nginx-certbot:local
+```
+
+> &nbsp;
+>
+> :bulb: &nbsp; **NOTE**
+>
+> Here we use local folders for volumes `letsencrypt` and `nginx`, to benefit transparency during testing. For a production like setup this is not recommended.
+>
+> &nbsp;
+
+### Run with `docker-compose`
+
+There's an official Docker image deployed to GitLab Container Registry that can be used out of the box. The easiest way is to create a `docker-compose.yml` file like this:
 
 ```yml
-version: "3.8"
+version: '3.8'
 
 services:
   nginx:
     image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
     restart: unless-stopped
     environment:
-      CERTBOT_EMAIL: owner@company.com
+      CERTBOT_EMAIL: owner@domain.com
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
+      - nginx:/var/log/nginx
 
 volumes:
   letsencrypt:
+  nginx:
 ```
 
-```sh
-docker pull ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
-```
+Then pull the image, build and start the container:
 
 ```sh
+docker-compose build --pull
 docker-compose -d up
 ```
 
-`certbot` will automatically request an SSL certificate for any `nginx` sites that look for SSL certificates in `/etc/letsencrypt/live`, and will automatically renew them over time.
+## :wrench: &nbsp; Useful Docker commands
 
-## Templating
-
-You may wish to template your configurations, e.g. passing in a hostname so as to be able to run multiple identical copies of this container; one per website. The docker container will use [`envsubst`](https://www.gnu.org/software/gettext/manual/html_node/envsubst-Invocation.html) to template all mounted user configs with a user-provided list of environment variables. Example:
-
-```nginx
-# In conf.d/nginx_template.conf
-server {
-  listen              443 ssl;
-  server_name         ${FQDN};
-  ssl_certificate     /etc/letsencrypt/live/${FQDN}/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/${FQDN}/privkey.pem;
-
-  ...
-}
-```
-
-```yml
-version: "3.8"
-
-services:
-  frontend:
-    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
-    restart: unless-stopped
-    environment:
-      CERTBOT_EMAIL: owner@company.com
-      # variable names are space-separated
-      ENVSUBST_VARS: FQDN
-      FQDN: company.com
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./conf.d:/etc/nginx/user.conf.d:ro
-      - letsencrypt:/etc/letsencrypt
-
-volumes:
-  letsencrypt:
-```
-
-## Extra domains
-
-In case the primary domain has some more domains, e.g. sub domains, those could also be secured within the domain service scope.
-
-Create a new root folder `certbot_extra_domains`.
+### Running containers
 
 ```sh
-mkdir certbot_extra_domains
+docker ps
 ```
 
-Inside that folder, create files with the same name as the primary domains, defined in each service. E.g. `certbot_extra_domin/company.com`. The file should then contain all extra domains, one on each row.
+### Container logs
+
+`container-name` can be found using the previous command.
 
 ```sh
-echo "mail.company.com" > certbot_extra_domains/company.com
+# Follow log output run-time
+docker logs container-name -f
+
+# Display last 50 rows
+docker logs container-name -n 50
+
+# Prefix rows with timestamp
+docker logs container-name -t
 ```
 
-Finally setup another volume to provide these files to the container.
-
-```yml
-version: "3.8"
-
-services:
-  frontend:
-    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
-    restart: unless-stopped
-    environment:
-      CERTBOT_EMAIL: owner@company.com
-      ENVSUBST_VARS: FQDN
-      FQDN: company.com
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./conf.d:/etc/nginx/user.conf.d:ro
-      - ./certbot_extra_domains:/etc/nginx/certbot/extra_domains:ro
-      - letsencrypt:/etc/letsencrypt
-
-volumes:
-  letsencrypt:
-```
-
-## Start using Docker command only
-
-Alternatively, docker could be run for each domain using plain `docker` only:
+### List all `Let's Encrypt` domain folders
 
 ```sh
-docker run --name nginx-proxy:company.com --rm --detach
-           --env CERTBOT_EMAIL=owner@company.com \
-           --env ENVSUBST_VARS=FQDN
-           --env FQDN=company.com
-           --volume ./conf.d:/etc/nginx/user.conf.d:ro \
-           --volume ./certbot_extra_domains:/etc/nginx/certbot/extra_domains:ro \
-           --volume letsencrypt:/etc/letsencrypt \
-           --publish "80:80" \
-           --publish "443:443" \
-           --restart unless-stopped \
-           --network letsencrypt \
-           ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
+docker exec ls -la /etc/letsencrypt/live container-name
 ```
 
-## Reference sites
+### List secret files for domain `domain.com`
+
+```sh
+docker exec ls -la /etc/letsencrypt/live/domain.com container-name
+```
+
+### Display `Nginx` main configuration
+
+```sh
+docker exec cat /etc/nginx/nginx.conf container-name
+```
+
+### List read-only `Nginx` configuration files provided by `nginx-certbot` image
+
+```sh
+docker exec ls -la /etc/nginx/conf.d container-name
+```
+
+### Follow `Nginx` logs
+
+```sh
+# Access logs
+docker logs -f /var/log/nginx/access.log container-name
+
+# Error logs
+docker logs -f /var/log/nginx/error.log container-name
+```
+
+## :man_shrugging: &nbsp; How does this work?
+
+_To be written..._
+
+## :bookmark: &nbsp; Reference sites
 
 - [Let's Encrypt](https://letsencrypt.org/)
 - [certbot](https://certbot.eff.org/)
 - [GitHub Actions using Docker buildx](https://github.com/marketplace/actions/build-and-push-docker-images#usage)
 
-## TODOs
+## :pray: &nbsp; Acknowledgments
 
-- Verify `docker run` command options are correct and it all works
+This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to convert from `bash` to `TypeScript` and privde unit tests. Still many good ideas are kept but in a different form.
+
+## :rocket: &nbsp; TODOs
+
 - Provide `nginx.conf` file instead of using the default config to apply gzip
+- Better security, [https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/](https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/)
 - Implement `.env` files as optional alternative
 - Add workflow action tests
-- Only trigger action when files related to docker image was changed
+- Publish docs generated by `compodoc`
+- Publish `Nx` dependency graph
+- Auto-upgrade with `Watchdog`
+- Only trigger action when files related to docker image was changed (maybe)

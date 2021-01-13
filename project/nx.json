@@ -1,0 +1,51 @@
+{
+	"npmScope": "tx",
+	"affected": {
+		"defaultBase": "master"
+	},
+	"implicitDependencies": {
+		"workspace.json": "*",
+		"package.json": {
+			"dependencies": "*",
+			"devDependencies": "*"
+		},
+		"tsconfig.base.json": "*",
+		"tslint.json": "*",
+		".eslintrc.json": "*",
+		"nx.json": "*"
+	},
+	"tasksRunnerOptions": {
+		"default": {
+			"runner": "@nrwl/workspace/tasks-runners/default",
+			"options": {
+				"cacheableOperations": ["build", "lint", "test", "e2e"]
+			}
+		}
+	},
+	"projects": {
+		"init": {
+			"tags": ["scope:apps", "type:apps"]
+		},
+		"certbot": {
+			"tags": ["scope:certbot", "type:app-lib"]
+		},
+		"config": {
+			"tags": ["scope:config", "type:setup"]
+		},
+		"environment": {
+			"tags": ["scope:environment", "type:setup"]
+		},
+		"domain": {
+			"tags": ["scope:domain", "type:app-lib"]
+		},
+		"nginx": {
+			"tags": ["scope:nginx", "type:app-lib"]
+		},
+		"util": {
+			"tags": ["scope:util", "type:util"]
+		},
+		"store": {
+			"tags": ["scope:store", "type:store"]
+		}
+	}
+}

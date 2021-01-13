@@ -17,18 +17,19 @@ name: Continuous Integration
 #
 
 on:
-  schedule:
-    - cron: "0 2 * * *" # everyday at 02:00 UTC
+  # schedule:
+  #   - cron: "0 2 * * *" # everyday at 02:00 UTC
   push:
-    branches:
-      - "**"
+    # branches:
+    #   - "**"
     tags:
-      - "v*"
+      - 'v*'
   pull_request:
 
 jobs:
-  main:
+  build-deploy:
     runs-on: ubuntu-latest
+    name: Build and Deploy
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -64,8 +65,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./src
-          file: ./src/Dockerfile
+          context: ./project
+          file: ./project/Dockerfile
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -75,12 +76,12 @@ jobs:
 
       - name: Slack
         uses: lazy-actions/slatify@v3.0.0
-        if: ${{ github.event_name == 'push tags' || failure() }}
+        if: ${{ github.event_name == 'push tags' }} #TODO: apply failure() when stable
         with:
           type: ${{ job.status }}
-          job_name: "${{ github.workflow }}"
-          mention: "channel"
-          mention_if: "failure"
+          job_name: '${{ github.workflow }}'
+          mention: 'channel'
+          mention_if: 'failure'
           commit: true
           url: ${{ secrets.SLACK_WEBHOOK }}
           token: ${{ secrets.GITHUB_TOKEN }}

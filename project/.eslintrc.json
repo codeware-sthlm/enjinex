@@ -1,0 +1,80 @@
+{
+	"root": true,
+	"ignorePatterns": ["**/*"],
+	"plugins": ["@nrwl/nx"],
+	"overrides": [
+		{
+			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+			"rules": {
+				"@nrwl/nx/enforce-module-boundaries": [
+					"error",
+					{
+						"enforceBuildableLibDependency": true,
+						"allow": [],
+						"depConstraints": [
+							{
+								"sourceTag": "scope:apps",
+								"onlyDependOnLibsWithTags": [
+									"scope:apps",
+									"scope:config",
+									"scope:store",
+									"scope:util",
+									"type:app-lib"
+								]
+							},
+							{
+								"sourceTag": "scope:certbot",
+								"onlyDependOnLibsWithTags": [
+									"scope:certbot",
+									"scope:store",
+									"type:setup",
+									"type:util"
+								]
+							},
+							{
+								"sourceTag": "scope:config",
+								"onlyDependOnLibsWithTags": [
+									"scope:config",
+									"scope:environment"
+								]
+							},
+							{
+								"sourceTag": "scope:domain",
+								"onlyDependOnLibsWithTags": [
+									"scope:domain",
+									"scope:store",
+									"type:setup",
+									"type:util"
+								]
+							},
+							{
+								"sourceTag": "scope:nginx",
+								"onlyDependOnLibsWithTags": [
+									"scope:nginx",
+									"scope:store",
+									"type:setup",
+									"type:util"
+								]
+							},
+							{
+								"sourceTag": "scope:util",
+								"onlyDependOnLibsWithTags": ["scope:util"]
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["*.ts", "*.tsx"],
+			"extends": ["plugin:@nrwl/nx/typescript"],
+			"parserOptions": { "project": "./tsconfig.*?.json" },
+			"rules": {}
+		},
+		{
+			"files": ["*.js", "*.jsx"],
+			"extends": ["plugin:@nrwl/nx/javascript"],
+			"rules": {}
+		}
+	]
+}
