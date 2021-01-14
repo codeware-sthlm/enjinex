@@ -47,6 +47,12 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
 - `CERTBOT_EMAIL`: Usually the domain owner's email, used by Let's Encrypt as contact email in case of any security issues.
 
+#### Optional
+
+- `NODE_ENV`: For the official image this value is set to `production`, which means all renewal request are sent to Let's Encrypt `production` site. So, any other value e.g. `staging` or `abc` will use the `staging` site.
+
+- `DRY_RUN`: This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
+
 ### Persistent Volumes
 
 - `/etc/letsencrypt`: Generated domain certificates stored in domain specific folders.

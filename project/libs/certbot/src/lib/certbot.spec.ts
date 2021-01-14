@@ -25,12 +25,23 @@ jest.mock('@tx/util', () => ({
 }));
 
 console.log = jest.fn();
-console.error = jest.fn();
 
 describe('certbot', () => {
 	beforeEach(() => {
+		console.error = jest.fn();
 		domain = 'my-site.com';
 		execCommand = '';
+	});
+
+	it('should never have undefined in command', async () => {
+		await requestCertificate('');
+		expect(execCommand.includes('undefined')).toBeFalsy();
+
+		await requestCertificate(domain);
+		expect(execCommand.includes('undefined')).toBeFalsy();
+
+		await requestCertificate(domain, ['a@b.com']);
+		expect(execCommand.includes('undefined')).toBeFalsy();
 	});
 
 	it('should return true for sucessful request', async () => {

@@ -21,9 +21,10 @@ export const requestCertificate = async (
 	console.log(`Request certificate for primary domain ${primaryDomain}`);
 
 	// Optional domains are provided with `-d` flag before each domain
+	optionalDomains = optionalDomains ?? [];
 	const includeDomainArg = `${
-		optionalDomains ? '-d ' : ''
-	}${optionalDomains?.join(' -d ')}`;
+		optionalDomains.length ? '-d ' : ''
+	}${optionalDomains.join(' -d ')}`;
 
 	const forceRenewal = getStore().forceRenew ? '--force-renewal' : '';
 
