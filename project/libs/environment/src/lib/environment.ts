@@ -25,7 +25,7 @@ export interface Env {
 export const getEnv = (): Env => {
 	return {
 		CERTBOT_EMAIL: process.env.CERTBOT_EMAIL ?? '',
-		DRY_RUN: (process.env.DRY_RUN ?? 'Y') as YesOrNo,
+		DRY_RUN: (process.env.DRY_RUN ?? 'N') as YesOrNo,
 		NODE_ENV: (process.env.NODE_ENV ?? 'development') as NodeEnv
 	};
 };

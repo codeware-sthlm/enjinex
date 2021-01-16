@@ -29,15 +29,12 @@ export const app = () => {
 	disablePendingDomains();
 
 	console.log('[init] Test nginx configuration');
-	testNginxConfiguration()
-		.then(() => {
-			// ok start the main processes
-			nginx = startNginxAndSetupListeners();
-			startMainLoop(nginx);
-		})
-		.catch((err) => {
-			console.error(`[init] ${err}`);
-			console.log('[init] Exit parent process with code 2');
-			process.exit(2);
-		});
+	if (testNginxConfiguration()) {
+		// ok start the main processes
+		nginx = startNginxAndSetupListeners();
+		startMainLoop(nginx);
+	} else {
+		console.log('[init] Exit parent process with code 2');
+		process.exit(2);
+	}
 };

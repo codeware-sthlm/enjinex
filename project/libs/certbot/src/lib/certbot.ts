@@ -1,7 +1,8 @@
+import { spawnSync } from 'child_process';
+
 import { getConfig, getLetsEncryptServer } from '@tx/config';
 import { getEnv } from '@tx/environment';
 import { getStore } from '@tx/store';
-import { execute } from '@tx/util';
 
 /**
  * Request a certificate for the primary domain and optional domains.
@@ -9,16 +10,16 @@ import { execute } from '@tx/util';
  *
  * @param primaryDomain Primary domain for certificate
  * @param optionalDomains Domain variants to add to the same certificate
+ * @returns `true` when request was successful
  *
  * @todo
  * #TODO: Implement support for `optionalDomains`
- * #TODO: Implement support for `--dry-run`
  */
-export const requestCertificate = async (
+export const requestCertificate = (
 	primaryDomain: string,
 	optionalDomains?: string[]
-): Promise<boolean> => {
-	console.log(`Request certificate for primary domain ${primaryDomain}`);
+): boolean => {
+	console.log(`Request certificate for primary domain ${primaryDomain}...`);
 
 	// Optional domains are provided with `-d` flag before each domain
 	optionalDomains = optionalDomains ?? [];
@@ -27,6 +28,7 @@ export const requestCertificate = async (
 	}${optionalDomains.join(' -d ')}`;
 
 	const forceRenewal = getStore().forceRenew ? '--force-renewal' : '';
+	const dryRun = getEnv().DRY_RUN === 'Y' ? '--dry-run' : '';
 
 	// Create certbot command
 	const config = getConfig().letsEncrypt;
@@ -41,14 +43,17 @@ export const requestCertificate = async (
         --cert-name ${primaryDomain} \
         ${includeDomainArg} \
         ${forceRenewal} \
+        ${dryRun} \
         --debug`;
 
-	// Execute command and hence request the certificate
-	const status = await execute(command);
-	if (status.stderr) {
-		console.error(status.stderr);
+	// Spawn command syncron and hence request the certificate
+	const status = spawnSync(command);
+	if (status.error) {
+		console.error(`Failed with message '${status.error.message}'`);
+	} else {
+		console.log('Status OK');
 	}
 
-	// Return false when we have something in stderr
-	return status.stderr === '';
+	// Return false when we have an error
+	return !status.error;
 };

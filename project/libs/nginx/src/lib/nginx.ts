@@ -1,5 +1,4 @@
-import { spawn } from 'child_process';
-import { execute } from '@tx/util';
+import { spawn, spawnSync } from 'child_process';
 
 /**
  * Spawn `nginx` as child process and setup listeners on
@@ -35,12 +34,13 @@ export const startNginxAndSetupListeners = () => {
 
 /**
  * Test `nginx` configuration
- * @returns test messages as promise
+ * @returns `true` if test was successful
  */
 export const testNginxConfiguration = () => {
-	return execute('nginx -t').then((value) => {
-		// nginx actually writes this output to stderr
-		console.log(`${value.stderr}`);
-		return value.stderr;
-	});
+	const status = spawnSync('nginx -t');
+	if (status.error) {
+		console.log(status.error.message);
+		return false;
+	}
+	return true;
 };

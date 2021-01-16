@@ -182,13 +182,13 @@ docker ps
 
 ```sh
 # Follow log output run-time
-docker logs container-name -f
+docker logs -f container-name
 
 # Display last 50 rows
-docker logs container-name -n 50
+docker logs -n 50 container-name
 
 # Prefix rows with timestamp
-docker logs container-name -t
+docker logs -f container-name
 ```
 
 ### List all `Let's Encrypt` domain folders
@@ -219,10 +219,10 @@ docker exec ls -la /etc/nginx/conf.d container-name
 
 ```sh
 # Access logs
-docker logs -f /var/log/nginx/access.log container-name
+docker exec tail -200f /var/log/nginx/access.log container-name
 
 # Error logs
-docker logs -f /var/log/nginx/error.log container-name
+docker exec tail -200f /var/log/nginx/error.log container-name
 ```
 
 ## :man_shrugging: &nbsp; How does this work?

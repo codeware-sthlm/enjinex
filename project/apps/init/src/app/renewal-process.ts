@@ -1,13 +1,14 @@
+import { spawnSync } from 'child_process';
+
 import { requestCertificate } from '@tx/certbot';
 import { getConfig } from '@tx/config';
 import { enableDomain, getDomains } from '@tx/domain';
-import { execute } from '@tx/util';
 
 /**
  * Main certificate renewal process
  * @returns code 0 when process successful
  */
-export const renewalProcess = async (): Promise<number> => {
+export const renewalProcess = (): number => {
 	console.log('Starting certificate renewal process');
 
 	if (!process.env.CERTBOT_EMAIL) {
@@ -24,7 +25,7 @@ export const renewalProcess = async (): Promise<number> => {
 		console.log(`Found ${domains.length} domains to request certificates for`);
 		domains.forEach(async (domain) => {
 			// TODO: Drop extra domains feature and look for server_name in config file instead
-			const status = await requestCertificate(domain);
+			const status = requestCertificate(domain);
 			if (!status) {
 				exitCode = 2;
 			}
@@ -32,10 +33,10 @@ export const renewalProcess = async (): Promise<number> => {
 		});
 
 		// Let nginx reload its configuration
-		const execStatus = await execute('nginx -s reload');
-		if (execStatus.stderr) {
+		const status = spawnSync('nginx -s reload');
+		if (status.error) {
 			console.error('ERROR: nginx reload failed');
-			console.error(execStatus.stderr);
+			console.error(status.error.message);
 			exitCode = 3;
 		}
 	} else {
