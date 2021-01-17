@@ -33,7 +33,7 @@ export const renewalProcess = (): number => {
 		});
 
 		// Let nginx reload its configuration
-		const status = spawnSync('nginx -s reload');
+		const status = spawnSync('nginx', ['-s', 'reload']);
 		if (status.error) {
 			console.error('ERROR: nginx reload failed');
 			console.error(status.error.message);

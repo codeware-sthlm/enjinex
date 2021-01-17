@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from 'child_process';
+import { execSync, spawn, spawnSync } from 'child_process';
 
 /**
  * Spawn `nginx` as child process and setup listeners on
@@ -37,9 +37,9 @@ export const startNginxAndSetupListeners = () => {
  * @returns `true` if test was successful
  */
 export const testNginxConfiguration = () => {
-	const status = spawnSync('nginx -t');
+	const status = spawnSync('nginx', ['-t']);
 	if (status.error) {
-		console.log(status.error.message);
+		console.error(`ERROR: ${status.error.message}`);
 		return false;
 	}
 	return true;

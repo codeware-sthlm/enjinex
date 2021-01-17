@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process';
+import { spawnSync, SpawnSyncReturns } from 'child_process';
 
 import { getConfig, getLetsEncryptServer } from '@tx/config';
 import { getEnv } from '@tx/environment';
@@ -29,6 +29,7 @@ export const requestCertificate = (
 
 	const forceRenewal = getStore().forceRenew ? '--force-renewal' : '';
 	const dryRun = getEnv().DRY_RUN === 'Y' ? '--dry-run' : '';
+	const isolated = getEnv().ISOLATED === 'Y';
 
 	// Create certbot command
 	const config = getConfig().letsEncrypt;
@@ -46,8 +47,16 @@ export const requestCertificate = (
         ${dryRun} \
         --debug`;
 
-	// Spawn command syncron and hence request the certificate
-	const status = spawnSync(command);
+	let status: SpawnSyncReturns<Buffer>;
+	if (!isolated) {
+		// Spawn command syncron and hence request the certificate
+		status = spawnSync(command);
+	} else {
+		console.log('Running in isolated mode, no request will be made!');
+		console.log('certbot request command:');
+		console.log(command);
+		status = { error: null } as SpawnSyncReturns<Buffer>;
+	}
 	if (status.error) {
 		console.error(`Failed with message '${status.error.message}'`);
 	} else {

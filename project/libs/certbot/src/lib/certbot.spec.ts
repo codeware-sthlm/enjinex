@@ -1,3 +1,5 @@
+import { spawnSync, SpawnSyncReturns } from 'child_process';
+
 import { getConfig } from '@tx/config';
 import { updateStore } from '@tx/store';
 
@@ -138,5 +140,23 @@ describe('certbot', () => {
 		process.env.DRY_RUN = 'Y';
 		requestCertificate(domain);
 		expect(execCommand.includes('--dry-run')).toBeTruthy();
+	});
+
+	it('should not run in isolated mode by default', () => {
+		(spawnSync as jest.Mock).mockClear();
+		requestCertificate(domain);
+		expect(spawnSync).toBeCalledTimes(1);
+	});
+
+	it('should run in isolated mode from ISOLATED environment', () => {
+		(spawnSync as jest.Mock).mockClear();
+		process.env.ISOLATED = 'N';
+		requestCertificate(domain);
+		expect(spawnSync).toBeCalledTimes(1);
+
+		(spawnSync as jest.Mock).mockClear();
+		process.env.ISOLATED = 'Y';
+		requestCertificate(domain);
+		expect(spawnSync).not.toBeCalled();
 	});
 });

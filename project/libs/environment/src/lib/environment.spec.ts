@@ -5,6 +5,7 @@ describe('environment', () => {
 		expect(getEnv()).toEqual(<Env>{
 			CERTBOT_EMAIL: '',
 			DRY_RUN: 'N',
+			ISOLATED: 'N',
 			NODE_ENV: 'test'
 		});
 	});

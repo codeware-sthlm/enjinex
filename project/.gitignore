@@ -38,6 +38,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Docker
-letsencrypt
-nginx
+# Project isolated test
+isolated-test/letsencrypt
+isolated-test/nginx

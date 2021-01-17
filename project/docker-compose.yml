@@ -1,0 +1,23 @@
+version: '3.8'
+
+# Compose file for a local isolated project test!
+
+services:
+  nginx-certbot:
+    build: .
+    container_name: nginx-certbot
+    restart: 'no'
+    environment:
+      CERTBOT_EMAIL: me@localhost.dev
+      ISOLATED: 'Y'
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./isolated-test/conf.d:/etc/nginx/user.conf.d:ro
+      - ./isolated-test/letsencrypt:/etc/letsencrypt
+      - ./isolated-test/nginx:/var/log/nginx
+
+volumes:
+  letsencrypt:
+  nginx:

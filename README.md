@@ -53,6 +53,9 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
 - `DRY_RUN`: This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
 
+- `ISOLATED`: This value is set to `N` by default. When this is set to `Y` the certbot request is never made and status is faked successful. Isolated mode is only valuable during development or test, when your computer isn't setup to receive responses on port 80 and 443. With this option it's still possible to spin up the containter and let the renewal process loop do its thing.  
+  [Read about how to run isolated tests.](###run-isolated-tests)
+
 ### Persistent Volumes
 
 - `/etc/letsencrypt`: Generated domain certificates stored in domain specific folders.
@@ -80,8 +83,6 @@ server {
 }
 ```
 
-> &nbsp;
->
 > :wave: &nbsp; **INFO**
 >
 > It's very important that the domain name (e.g. `my-site.io`) match for:
@@ -91,18 +92,12 @@ server {
 > - Configuration properties
 >   - `ssl_certificate` to be `/etc/letsencrypt/live/my-site.io/fullchain.pem`
 >   - `ssl_certificate_key` to be `/etc/letsencrypt/live/my-site.io/privkey.pem`
->
-> &nbsp;
 
 &nbsp;
 
-> &nbsp;
->
 > :fire: &nbsp; **WARNING**
 >
 > Using a `server` block that listens on port 80 may cause issues with renewal. This container will already handle forwarding to port 443, so they are unnecessary. See `nginx_conf.d/http.conf`.
->
-> &nbsp;
 
 ### Build and run yourself
 
@@ -166,6 +161,28 @@ Then pull the image, build and start the container:
 ```sh
 docker-compose build --pull
 docker-compose -d up
+```
+
+### Run isolated tests
+
+Isolated test are used when the computer can not receive reponses from Let's Encrypt. Mostly this is your local development computer.
+
+During these tests no requests are sent to Let's Encrypt but the process is otherwise the real one. By running isolated tests the developer can see the output of the latest changes and get a quick sanity check as a complement to unit tests.
+
+The only problem is the certificates provided by Let's Encrypt and this connection is, stated above, disconnected. Luckily there's a script creating self signed certificate files.
+
+```sh
+./isolated-test/make-certs.sh
+```
+
+```sh
+docker-compose up
+```
+
+A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's nothing stopping from creating more fake domains. Just create certificates from those domains as well, e.g. `my-site.com`.
+
+```sh
+./isolated-test/make-certs.sh my-site.com
 ```
 
 ## :wrench: &nbsp; Useful Docker commands
