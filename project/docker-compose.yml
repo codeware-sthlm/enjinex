@@ -10,6 +10,7 @@ services:
     environment:
       CERTBOT_EMAIL: me@localhost.dev
       ISOLATED: 'Y'
+      NODE_ENV: 'test'
     ports:
       - 80:80
       - 443:443
@@ -17,6 +18,7 @@ services:
       - ./isolated-test/conf.d:/etc/nginx/user.conf.d:ro
       - ./isolated-test/letsencrypt:/etc/letsencrypt
       - ./isolated-test/nginx:/var/log/nginx
+      - ./isolated-test/logs:/logs
 
 volumes:
   letsencrypt:

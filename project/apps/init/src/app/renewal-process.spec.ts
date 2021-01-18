@@ -2,6 +2,7 @@ import { spawnSync } from 'child_process';
 
 import { requestCertificate } from '@tx/certbot';
 import { getDomains } from '@tx/domain';
+import { logger } from '@tx/logger';
 
 import { renewalProcess } from './renewal-process';
 
@@ -29,8 +30,8 @@ const setDefaultMockValues = () => {
 	(spawnSync as jest.Mock).mockReturnValue({ error: undefined });
 };
 
-console.log = jest.fn();
-console.error = jest.fn();
+logger.log = jest.fn();
+logger.error = jest.fn();
 
 describe('renewal-process', () => {
 	beforeEach(() => {
@@ -42,14 +43,14 @@ describe('renewal-process', () => {
 		process.env.CERTBOT_EMAIL = '';
 		const statusCode = renewalProcess();
 		expect(statusCode).toBe(1);
-		expect(console.error).toHaveBeenCalledTimes(1);
+		expect(logger.error).toHaveBeenCalledTimes(1);
 	});
 
 	it('should return status code 2 when request failed', () => {
 		(requestCertificate as jest.Mock).mockReturnValue(false);
 		const statusCode = renewalProcess();
 		expect(statusCode).toBe(2);
-		expect(console.error).toHaveBeenCalledTimes(0);
+		expect(logger.error).toHaveBeenCalledTimes(0);
 		expect(spawnSync).toHaveBeenCalledTimes(1);
 	});
 
@@ -59,8 +60,8 @@ describe('renewal-process', () => {
 		});
 		const statusCode = renewalProcess();
 		expect(statusCode).toBe(3);
-		expect(spawnSync).toHaveBeenCalledWith('nginx -s reload');
-		expect(console.error).toHaveBeenLastCalledWith('reload error');
+		expect(spawnSync).toHaveBeenCalledWith('nginx', ['-s', 'reload']);
+		expect(logger.error).toHaveBeenLastCalledWith('reload error');
 	});
 
 	it('should return status code 0 successful', () => {

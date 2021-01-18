@@ -122,13 +122,9 @@ docker run -it --rm -d \
            nginx-certbot:local
 ```
 
-> &nbsp;
->
 > :bulb: &nbsp; **NOTE**
 >
 > Here we use local folders for volumes `letsencrypt` and `nginx`, to benefit transparency during testing. For a production like setup this is not recommended.
->
-> &nbsp;
 
 ### Run with `docker-compose`
 

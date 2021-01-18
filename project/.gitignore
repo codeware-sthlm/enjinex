@@ -40,4 +40,7 @@ Thumbs.db
 
 # Project isolated test
 isolated-test/letsencrypt
+isolated-test/logs
 isolated-test/nginx
+
+logs

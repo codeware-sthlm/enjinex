@@ -1,6 +1,7 @@
-import { spawnSync, SpawnSyncReturns } from 'child_process';
+import { spawnSync } from 'child_process';
 
 import { getConfig } from '@tx/config';
+import { logger } from '@tx/logger';
 import { updateStore } from '@tx/store';
 
 import { requestCertificate } from './certbot';
@@ -24,11 +25,11 @@ jest.mock('child_process', () => ({
 	)
 }));
 
-console.log = jest.fn();
+logger.log = jest.fn();
 
 describe('certbot', () => {
 	beforeEach(() => {
-		console.error = jest.fn();
+		logger.error = jest.fn();
 		domain = 'my-site.com';
 		execCommand = '';
 	});
@@ -51,7 +52,7 @@ describe('certbot', () => {
 
 	it('should print error and return false for failed request', () => {
 		const status = requestCertificate('');
-		expect(console.error).toHaveBeenCalledTimes(1);
+		expect(logger.error).toHaveBeenCalledTimes(1);
 		expect(status).toBeFalsy();
 	});
 

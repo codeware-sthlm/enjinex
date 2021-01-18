@@ -1,6 +1,7 @@
 import { readFileSync, existsSync, rename } from 'fs';
 import { basename } from 'path';
 import { getConfig } from '@tx/config';
+import { logger } from '@tx/logger';
 import { copyFolderSync, findFiles } from '@tx/util';
 
 /** File sufix to be aded to disabled domain config files */
@@ -52,18 +53,22 @@ const getPendingFilePath = (filePath: string) => `${filePath}${PENDING_SUFIX}`;
  *
  * Disable those config files by adding prefix `.pending` so that `nginx` don't recognize them as valid config files.
  */
-export const disablePendingDomains = (): void => {
+export const disablePendingDomains = (): number => {
+	let disabledDomains = 0;
 	findFiles(getConfig().nginx.configPath, '*.conf').forEach((filePath) => {
 		if (!allConfigKeyFilesExists(filePath)) {
-			console.log(`Key files missing for ${filePath}, disable domain`);
+			logger.debug(`Key files missing for ${filePath}, disable domain`);
 			rename(filePath, getPendingFilePath(filePath), (err) => {
 				if (err) {
-					console.error(`Renaming file failed with code ${err.code}`);
-					console.error(err.message);
+					logger.warn(`Renaming file failed with code ${err.code}`);
+					logger.warn(err.message);
+				} else {
+					disabledDomains++;
 				}
 			});
 		}
 	});
+	return disabledDomains;
 };
 
 /**
@@ -81,15 +86,15 @@ export const enableDomain = (domain: string): void => {
 	// Check if pending file exists
 	const pendingFilePath = getPendingFilePath(filePath);
 	if (!existsSync(pendingFilePath)) {
-		console.error(`Could not enable domain, ${pendingFilePath} not found`);
+		logger.error(`Could not enable domain, ${pendingFilePath} not found`);
 		return;
 	}
 
-	console.log(`Enable pending domain ${domain}`);
+	logger.info(`Enable pending domain ${domain}`);
 	rename(pendingFilePath, filePath, (err) => {
 		if (err) {
-			console.error(`Renaming file failed with code ${err.code}`);
-			console.error(err.message);
+			logger.error(`Renaming file failed with code ${err.code}`);
+			logger.error(err.message);
 		}
 	});
 };
@@ -144,9 +149,11 @@ export const getDomains = (): string[] => {
 
 /**
  * User provided domain configurations should be transfered to nginx configuration
+ * @returns number of transfered config files
  */
-export const transferUserConfig = (): void => {
+export const transferUserConfig = (): number => {
 	const nginxConfig = getConfig().nginx.configPath;
 	const userConfig = getConfig().nginx.userConfigPath;
 	copyFolderSync(userConfig, nginxConfig);
+	return findFiles(nginxConfig, '*.conf').length;
 };

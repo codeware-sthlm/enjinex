@@ -1,5 +1,6 @@
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { getConfig } from '@tx/config';
+import { logger } from '@tx/logger';
 
 import { exitAllProcesses } from './exit-process';
 import { renewalProcess } from './renewal-process';
@@ -10,7 +11,7 @@ import { setIntervalWithoutDelay } from '@tx/util';
  * @param nginx nginx process stream
  */
 export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
-	console.log('[init] Starting main loop...');
+	logger.info('Starting main loop...');
 
 	const timer = setIntervalWithoutDelay(async () => {
 		const status = renewalProcess();
@@ -18,7 +19,7 @@ export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
 			timer.unref();
 			exitAllProcesses('renewal failed', nginx);
 		}
-		console.log(
+		logger.info(
 			`Start next renewal process in ${
 				getConfig().letsEncrypt.renewalTimer
 			} seconds...`

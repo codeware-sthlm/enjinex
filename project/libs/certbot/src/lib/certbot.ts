@@ -2,6 +2,7 @@ import { spawnSync, SpawnSyncReturns } from 'child_process';
 
 import { getConfig, getLetsEncryptServer } from '@tx/config';
 import { getEnv } from '@tx/environment';
+import { logger } from '@tx/logger';
 import { getStore } from '@tx/store';
 
 /**
@@ -19,7 +20,7 @@ export const requestCertificate = (
 	primaryDomain: string,
 	optionalDomains?: string[]
 ): boolean => {
-	console.log(`Request certificate for primary domain ${primaryDomain}...`);
+	logger.info(`Request certificate for primary domain ${primaryDomain}...`);
 
 	// Optional domains are provided with `-d` flag before each domain
 	optionalDomains = optionalDomains ?? [];
@@ -52,15 +53,15 @@ export const requestCertificate = (
 		// Spawn command syncron and hence request the certificate
 		status = spawnSync(command);
 	} else {
-		console.log('Running in isolated mode, no request will be made!');
-		console.log('certbot request command:');
-		console.log(command);
+		logger.info('Running in isolated mode, no request will be made!');
+		logger.info('certbot request command:');
+		logger.info(command);
 		status = { error: null } as SpawnSyncReturns<Buffer>;
 	}
 	if (status.error) {
-		console.error(`Failed with message '${status.error.message}'`);
+		logger.error(`Failed with message '${status.error.message}'`);
 	} else {
-		console.log('Status OK');
+		logger.info('Status OK');
 	}
 
 	// Return false when we have an error

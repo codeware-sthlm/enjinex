@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import { basename, dirname, join } from 'path';
 import * as fsMock from 'mock-fs';
+
 import { Config } from '@tx/config';
+import { logger } from '@tx/logger';
 
 import {
 	disablePendingDomains,
@@ -28,7 +30,7 @@ fsMock({
 	})
 });
 
-console.log = jest.fn();
+logger.log = jest.fn();
 
 describe('domain', () => {
 	afterAll(() => fsMock.restore());
