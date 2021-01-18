@@ -9,6 +9,7 @@ Features
 - Use DRY_RUN environment to apply certbot `--dry-run` flag
 - Use ISOLATED environment to run without real certbot requests
 - Provide script to create self signed Let's Encrypt certs for isoleted test
+- Use Winston for logging
 
 Enhancement
 
