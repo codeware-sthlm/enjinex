@@ -1,10 +1,12 @@
-# docker-nginx-certbot
+# docker-nginx-certbot <!-- omit in toc -->
 
 ![Continuous integration](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/ci/badge.svg?branch=master)
 
 Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
-| Features                                           |                      |
+## :round_pushpin: &nbsp; Features <!-- omit in toc -->
+
+|                                                    |                      |
 | -------------------------------------------------- | -------------------- |
 | Distributed as Docker image                        | :white_check_mark:   |
 | Built with Node                                    | :white_check_mark:   |
@@ -23,7 +25,16 @@ Create and automatically renew website SSL certificates using the free [Let's En
 | Email renewal events to domain owner               | :white_large_square: |
 | Compodoc technical docs                            | :white_large_square: |
 
-## :whale: &nbsp; Supported platforms
+## Table of contents <!-- omit in toc -->
+
+- [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
+- [:dart: &nbsp; Usage](#dart--usage)
+- [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
+- [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
+- [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
+- [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
+
+## :desktop_computer: &nbsp; Supported platforms
 
 Deployed Docker images can be found [here](https://github.com/orgs/abstract-tlabs/packages/container/package/docker-nginx-certbot%2Fnginx-certbot), supporting the following platforms:
 
@@ -45,16 +56,20 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
 #### Required
 
-- `CERTBOT_EMAIL`: Usually the domain owner's email, used by Let's Encrypt as contact email in case of any security issues.
+- `CERTBOT_EMAIL`  
+  Usually the domain owner's email, used by Let's Encrypt as contact email in case of any security issues.
 
 #### Optional
 
-- `NODE_ENV`: For the official image this value is set to `production`, which means all renewal request are sent to Let's Encrypt `production` site. So, any other value e.g. `staging` or `abc` will use the `staging` site.
+- `NODE_ENV`  
+  For the official image this value is set to `production`, which means all renewal request are sent to Let's Encrypt `production` site. So, any other value e.g. `staging` or `abc` will use the `staging` site.
 
-- `DRY_RUN`: This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
+- `DRY_RUN`  
+  This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
 
-- `ISOLATED`: This value is set to `N` by default. When this is set to `Y` the certbot request is never made and status is faked successful. Isolated mode is only valuable during development or test, when your computer isn't setup to receive responses on port 80 and 443. With this option it's still possible to spin up the containter and let the renewal process loop do its thing.  
-  [Read about how to run isolated tests.](###run-isolated-tests)
+- `ISOLATED`  
+  This value is set to `N` by default. When this is set to `Y` the certbot request is never made and status is faked successful. Isolated mode is only valuable during development or test, when your computer isn't setup to receive responses on port 80 and 443. With this option it's still possible to spin up the containter and let the renewal process loop do its thing.  
+   [Read about how to run isolated tests.](###run-isolated-tests)
 
 ### Persistent Volumes
 
@@ -181,7 +196,7 @@ A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's 
 ./isolated-test/make-certs.sh my-site.com
 ```
 
-## :wrench: &nbsp; Useful Docker commands
+## :whale: &nbsp; Useful Docker commands
 
 ### Running containers
 
@@ -202,6 +217,16 @@ docker logs -n 50 container-name
 
 # Prefix rows with timestamp
 docker logs -f container-name
+```
+
+These logs are also saved by `winston` as JSON objects to `logs/` folder.
+
+```sh
+# Error logs
+docker exec tail -200f logs/error.log container-name
+
+# All other log level
+docker exec tail -200f logs/combined.log container-name
 ```
 
 ### List all `Let's Encrypt` domain folders
@@ -245,20 +270,19 @@ _To be written..._
 ## :bookmark: &nbsp; Reference sites
 
 - [Let's Encrypt](https://letsencrypt.org/)
-- [certbot](https://certbot.eff.org/)
+- [Certbot](https://certbot.eff.org/)
 - [GitHub Actions using Docker buildx](https://github.com/marketplace/actions/build-and-push-docker-images#usage)
 
 ## :pray: &nbsp; Acknowledgments
 
 This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to convert from `bash` to `TypeScript` and privde unit tests. Still many good ideas are kept but in a different form.
 
-## :rocket: &nbsp; TODOs
+## :rocket: &nbsp; TODOs <!-- omit in toc -->
 
 - Provide `nginx.conf` file instead of using the default config to apply gzip
 - Better security, [https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/](https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/)
 - Implement `.env` files as optional alternative
-- Add workflow action tests
+- Add test job to workflow
 - Publish docs generated by `compodoc`
 - Publish `Nx` dependency graph
-- Auto-upgrade with `Watchdog`
-- Only trigger action when files related to docker image was changed (maybe)
+- Auto-upgrade with `watchtower`

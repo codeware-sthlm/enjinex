@@ -1,4 +1,4 @@
-# 0.3
+# 0.3 (2021-01-xx)
 
 Bug fix
 
@@ -16,7 +16,7 @@ Enhancement
 - Use syncron child processes only to stop using async await decorators
 - Add more tests to `certbot` lib
 
-# 0.2
+# 0.2 (2021-01-15)
 
 Bug fix
 
@@ -26,6 +26,6 @@ Other
 
 - Add optional environment variables to readme
 
-# 0.1
+# 0.1 (2021-01-13)
 
 - Major rewrite to Node and TypeScript
