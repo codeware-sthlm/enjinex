@@ -223,44 +223,44 @@ These logs are also saved by `winston` as JSON objects to `logs/` folder.
 
 ```sh
 # Error logs
-docker exec tail -200f logs/error.log container-name
+docker exec container-name tail -200f logs/error.log
 
 # All other log level
-docker exec tail -200f logs/combined.log container-name
+docker exec container-name tail -200f logs/combined.log
 ```
 
 ### List all `Let's Encrypt` domain folders
 
 ```sh
-docker exec ls -la /etc/letsencrypt/live container-name
+docker exec container-name ls -la /etc/letsencrypt/live
 ```
 
 ### List secret files for domain `domain.com`
 
 ```sh
-docker exec ls -la /etc/letsencrypt/live/domain.com container-name
+docker exec container-name ls -la /etc/letsencrypt/live/domain.com
 ```
 
 ### Display `Nginx` main configuration
 
 ```sh
-docker exec cat /etc/nginx/nginx.conf container-name
+docker exec container-name cat /etc/nginx/nginx.conf
 ```
 
 ### List read-only `Nginx` configuration files provided by `nginx-certbot` image
 
 ```sh
-docker exec ls -la /etc/nginx/conf.d container-name
+docker exec container-name ls -la /etc/nginx/conf.d
 ```
 
 ### Follow `Nginx` logs
 
 ```sh
 # Access logs
-docker exec tail -200f /var/log/nginx/access.log container-name
+docker exec container-name tail -200f /var/log/nginx/access.log
 
 # Error logs
-docker exec tail -200f /var/log/nginx/error.log container-name
+docker exec container-name tail -200f /var/log/nginx/error.log
 ```
 
 ## :man_shrugging: &nbsp; How does this work?
