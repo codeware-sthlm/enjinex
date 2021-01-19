@@ -2,7 +2,7 @@ import { readFileSync, existsSync, rename } from 'fs';
 import { basename } from 'path';
 import { getConfig } from '@tx/config';
 import { logger } from '@tx/logger';
-import { copyFolderSync, findFiles } from '@tx/util';
+import { copyFolderSync, findFilesFlat } from '@tx/util';
 
 /** File sufix to be aded to disabled domain config files */
 const PENDING_SUFIX = '.pending';
@@ -26,6 +26,7 @@ const allConfigKeyFilesExists = (filePath: string): boolean => {
 				if (idx) {
 					const pemFile = line.substring(idx).trim();
 					if (!existsSync(pemFile)) {
+						logger.debug(`Key file found: ${pemFile}`);
 						fileIsMissing = true;
 					}
 				}
@@ -36,10 +37,11 @@ const allConfigKeyFilesExists = (filePath: string): boolean => {
 };
 
 /**
- * Extract domain from full path string
+ * Extract domain from full path string, accepting `.conf` and `.conf.pending`
  * @param filePath File path to extract
  */
-const extractDomain = (filePath: string) => basename(filePath, '.conf');
+const extractDomain = (filePath: string) =>
+	basename(filePath.replace('.pending', ''), '.conf');
 
 /**
  * Get pending file path
@@ -55,9 +57,9 @@ const getPendingFilePath = (filePath: string) => `${filePath}${PENDING_SUFIX}`;
  */
 export const disablePendingDomains = (): number => {
 	let disabledDomains = 0;
-	findFiles(getConfig().nginx.configPath, '*.conf').forEach((filePath) => {
+	findFilesFlat(getConfig().nginx.configPath, '*.conf').forEach((filePath) => {
 		if (!allConfigKeyFilesExists(filePath)) {
-			logger.debug(`Key files missing for ${filePath}, disable domain`);
+			logger.info(`Key files missing for ${filePath}, disable domain`);
 			rename(filePath, getPendingFilePath(filePath), (err) => {
 				if (err) {
 					logger.warn(`Renaming file failed with code ${err.code}`);
@@ -86,7 +88,17 @@ export const enableDomain = (domain: string): void => {
 	// Check if pending file exists
 	const pendingFilePath = getPendingFilePath(filePath);
 	if (!existsSync(pendingFilePath)) {
-		logger.error(`Could not enable domain, ${pendingFilePath} not found`);
+		logger.warn(`Could not enable domain, ${pendingFilePath} not found`);
+		return;
+	}
+
+	// Check if all key files exists before enabling domain
+	if (!allConfigKeyFilesExists(pendingFilePath)) {
+		logger.warn(
+			`Key files still missing for ${extractDomain(
+				filePath
+			)}, could not enable domain`
+		);
 		return;
 	}
 
@@ -109,13 +121,13 @@ export const enableDomain = (domain: string): void => {
  * E.g. ssl_certificate_key /etc/letsencrypt/live/<primary_domain_name>/privkey.pem
  */
 export const getDomains = (): string[] => {
-	return findFiles(getConfig().nginx.configPath, '*.conf')
+	return findFilesFlat(getConfig().nginx.configPath, '*.conf*')
 		.filter((filePath) => {
 			// Extract domain
 			const domain = extractDomain(filePath);
 
 			// Look for a line similar to this:
-			// ssl_certificate_key /etc/letsencrypt/live/${FQDN}/privkey.pem;
+			// ssl_certificate_key /etc/letsencrypt/live/${domain}/privkey.pem;
 			const config = getConfig().cert;
 			const certFile = `${config.domainPath}/${domain}/${config.privatePem};`;
 
@@ -155,5 +167,5 @@ export const transferUserConfig = (): number => {
 	const nginxConfig = getConfig().nginx.configPath;
 	const userConfig = getConfig().nginx.userConfigPath;
 	copyFolderSync(userConfig, nginxConfig);
-	return findFiles(nginxConfig, '*.conf').length;
+	return findFilesFlat(nginxConfig, '*.conf').length;
 };

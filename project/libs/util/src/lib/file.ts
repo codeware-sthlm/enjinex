@@ -34,7 +34,7 @@ export const copyFolderSync = (fromPath: string, toPath: string): void => {
 };
 
 /**
- * Find files in provided path
+ * Find files in provided path, no sub folders
  *
  * @param path Path to search (defaults to `./` when empty)
  * @param shellMatch Optional match files using shell pattern (defaults to `**`)
@@ -42,7 +42,7 @@ export const copyFolderSync = (fromPath: string, toPath: string): void => {
  *
  * @returns an array of files
  */
-export const findFiles = (
+export const findFilesFlat = (
 	path: string,
 	shellMatch = '**',
 	relative = false
@@ -61,7 +61,7 @@ export const findFiles = (
 };
 
 /**
- * Find files in provided path with a specific content
+ * Find files in provided path with a specific content (no sub folders)
  *
  * @param path Path to search (defaults to `./` when empty)
  * @param contentMatch File content to be found
@@ -76,7 +76,7 @@ export const findFilesContent = (
 	shellMatch = '**',
 	relative = false
 ): string[] => {
-	return findFiles(path, shellMatch, false)
+	return findFilesFlat(path, shellMatch, false)
 		.filter((file) =>
 			readFileSync(file, { encoding: 'utf-8' }).includes(contentMatch)
 		)

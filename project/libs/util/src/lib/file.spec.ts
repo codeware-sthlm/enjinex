@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, copyFileSync } from 'fs';
 import { basename, join } from 'path';
 import * as fsMock from 'mock-fs';
 
-import { copyFolderSync, findFiles, findFilesContent } from './file';
+import { copyFolderSync, findFilesFlat, findFilesContent } from './file';
 
 // Mock a filesystem
 fsMock({
@@ -67,20 +67,20 @@ describe('file', () => {
 	describe('findFiles', () => {
 		it('should return file with abolute and relative path', () => {
 			const file = basename(__filename);
-			expect(findFiles(__dirname, file).pop()).toBe(
-				`${__dirname}/${findFiles(__dirname, file, true).pop()}`
+			expect(findFilesFlat(__dirname, file).pop()).toBe(
+				`${__dirname}/${findFilesFlat(__dirname, file, true).pop()}`
 			);
 		});
 
 		it('should find files in current folder only', () => {
-			const match = findFiles(__dirname).every((file) =>
+			const match = findFilesFlat(__dirname).every((file) =>
 				file.startsWith(__dirname)
 			);
 			expect(match).toBeTruthy();
 		});
 
 		it('should find `file` files', () => {
-			const files = findFiles(__dirname, 'file*.ts', true).filter(
+			const files = findFilesFlat(__dirname, 'file*.ts', true).filter(
 				(file) => file === 'file.ts' || file === 'file.spec.ts'
 			);
 			expect(files.length).toBe(2);
@@ -88,11 +88,11 @@ describe('file', () => {
 	});
 
 	it('should provide empty path and default to root', () => {
-		expect(findFiles('').length).toBe(findFiles('./').length);
+		expect(findFilesFlat('').length).toBe(findFilesFlat('./').length);
 	});
 
 	it('should find spec file only', () => {
-		expect(findFiles(__dirname, 'file.spec.ts', true)).toEqual([
+		expect(findFilesFlat(__dirname, 'file.spec.ts', true)).toEqual([
 			'file.spec.ts'
 		]);
 	});

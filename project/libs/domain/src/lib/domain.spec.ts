@@ -15,22 +15,22 @@ import {
 jest.mock('@tx/config', () => ({
 	getConfig: jest.fn().mockReturnValue({
 		cert: { domainPath: '', privatePem: 'privkey.pem' },
-		nginx: { configPath: 'nginx_config.d', userConfigPath: 'config.d' }
+		nginx: { configPath: 'config.d', userConfigPath: 'user.config.d' }
 	} as Config)
 }));
 
 // Mock a filesystem
 fsMock({
-	'config.d': {
+	'user.config.d': {
 		'domain.com.conf': '',
 		'site.com.conf': ''
 	},
-	'nginx_config.d': fsMock.load(join(dirname(__filename), 'test-files'), {
+	'config.d': fsMock.load(join(dirname(__filename), 'test-files'), {
 		lazy: false
 	})
 });
 
-logger.log = jest.fn();
+//logger.info = jest.fn();
 
 describe('domain', () => {
 	afterAll(() => fsMock.restore());
@@ -41,13 +41,17 @@ describe('domain', () => {
 
 	it('should transfer user config files', () => {
 		transferUserConfig();
-		expect(fs.existsSync('nginx_config.d/valid-my-site.com.conf')).toBeTruthy();
-		expect(fs.existsSync('nginx_config.d/domain.com.conf')).toBeTruthy();
-		expect(fs.existsSync('nginx_config.d/site.com.conf')).toBeTruthy();
+		expect(fs.existsSync('config.d/valid-my-site.com.conf')).toBeTruthy();
+		expect(fs.existsSync('config.d/domain.com.conf')).toBeTruthy();
+		expect(fs.existsSync('config.d/site.com.conf')).toBeTruthy();
 	});
 
-	it('should only find valid sites', () => {
-		expect(getDomains()).toEqual(['valid-keys-site.com', 'valid-my-site.com']);
+	it('should only find valid domain names matching key file', () => {
+		expect(getDomains()).toEqual([
+			'valid-keys-site.com',
+			'valid-keys-site2.com',
+			'valid-my-site.com'
+		]);
 	});
 
 	it('should not disable valid-keys-site.com', () => {
