@@ -17,6 +17,7 @@ Enhancement
 - Use syncron child processes only to stop using async await decorators
 - Add more tests to `certbot` lib
 - Improve ssl security
+- Remove support for TLS V1.1, it's soon deprecated
 
 # 0.2 (2021-01-15)
 

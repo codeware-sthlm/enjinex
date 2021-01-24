@@ -56,6 +56,7 @@ export function getConfig(): Config {
 		},
 		ssl: {
 			dhparamFile: '/etc/nginx/ssl/dhparam.pem',
+			// 4096 will take much longer time, so if your computer is slow...
 			dhparamBits: 2048
 		}
 	};
