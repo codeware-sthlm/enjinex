@@ -1,6 +1,7 @@
+import { logger } from '@tx/logger';
+
 import { app } from './app/app';
 
-/**
- * Start init app
- */
+logger.info('Start main app...');
+
 app();

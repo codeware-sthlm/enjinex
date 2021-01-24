@@ -1,29 +1,47 @@
-# docker-nginx-certbot
+# docker-nginx-certbot <!-- omit in toc -->
 
 ![Continuous integration](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/ci/badge.svg?branch=master)
 
 Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
-| Features                                           |                      |
-| -------------------------------------------------- | -------------------- |
-| Distributed as Docker image                        | :white_check_mark:   |
-| Built with Node                                    | :white_check_mark:   |
-| Type safe code with TypeScript                     | :white_check_mark:   |
-| Multi-platform support                             | :white_check_mark:   |
-| Node signal handling to prevent zombies            | :white_check_mark:   |
-| Configure multiple domains                         | :white_check_mark:   |
-| Automatic Let's Encrypt certificate renewal        | :white_check_mark:   |
-| Persistent volumes for certificates and Nginx logs | :white_check_mark:   |
-| Monorepo tooling by [Nx](nx.dev)                   | :white_check_mark:   |
-| Unit tests                                         | :white_check_mark:   |
-| Auto linting                                       | :white_check_mark:   |
-| Highest level SSL security                         | :white_large_square: |
-| Diffie-Hellman parameters                          | :white_large_square: |
-| Group domains by a common domain owner             | :white_large_square: |
-| Email renewal events to domain owner               | :white_large_square: |
-| Compodoc technical docs                            | :white_large_square: |
+## :round_pushpin: &nbsp; Features <!-- omit in toc -->
 
-## :whale: &nbsp; Supported platforms
+|                                                      |                      |
+| ---------------------------------------------------- | -------------------- |
+| Distributed as Docker image                          | :white_check_mark:   |
+| Built with Node                                      | :white_check_mark:   |
+| Type safe code with TypeScript                       | :white_check_mark:   |
+| Multi-platform support                               | :white_check_mark:   |
+| Node signal handling to prevent zombies              | :white_check_mark:   |
+| Configure multiple domains                           | :white_check_mark:   |
+| Automatic Let's Encrypt certificate renewal          | :white_check_mark:   |
+| Persistent volumes for certificates and Nginx logs   | :white_check_mark:   |
+| Monorepo tooling by [Nx](nx.dev)                     | :white_check_mark:   |
+| Unit tests                                           | :white_check_mark:   |
+| Auto linting                                         | :white_check_mark:   |
+| A+ overall rating at [SSL Labs](https://ssllabs.com) | :white_check_mark:   |
+| Diffie-Hellman parameters                            | :white_check_mark:   |
+| Group domains by a common domain owner               | :white_large_square: |
+| Email renewal events to domain owner                 | :white_large_square: |
+| Compodoc technical docs                              | :white_large_square: |
+
+### SSL Labs rating
+
+This rating is returned for both domains and sub domains.
+
+![SSL Labs rating](assets/ssl-labs.png)
+
+## Table of contents <!-- omit in toc -->
+
+- [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
+- [:dart: &nbsp; Usage](#dart--usage)
+- [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
+- [:policeman: &nbsp; Domain security](#policeman--domain-security)
+- [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
+- [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
+- [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
+
+## :desktop_computer: &nbsp; Supported platforms
 
 Deployed Docker images can be found [here](https://github.com/orgs/abstract-tlabs/packages/container/package/docker-nginx-certbot%2Fnginx-certbot), supporting the following platforms:
 
@@ -45,19 +63,30 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
 #### Required
 
-- `CERTBOT_EMAIL`: Usually the domain owner's email, used by Let's Encrypt as contact email in case of any security issues.
+- `CERTBOT_EMAIL`  
+  Usually the domain owner's email, used by Let's Encrypt as contact email in case of any security issues.
 
 #### Optional
 
-- `NODE_ENV`: For the official image this value is set to `production`, which means all renewal request are sent to Let's Encrypt `production` site. So, any other value e.g. `staging` or `abc` will use the `staging` site.
+- `NODE_ENV`  
+  For the official image this value is set to `production`, which means all renewal request are sent to Let's Encrypt `production` site. So, any other value e.g. `staging` or `abc` will use the `staging` site.
 
-- `DRY_RUN`: This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
+- `DRY_RUN`  
+  This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
+
+- `ISOLATED`  
+  This value is set to `N` by default. When this is set to `Y` the certbot request is never made and status is faked successful. Isolated mode is only valuable during development or test, when your computer isn't setup to receive responses on port 80 and 443. With this option it's still possible to spin up the containter and let the renewal process loop do its thing.  
+   [Read about how to run isolated tests.](###run-isolated-tests)
 
 ### Persistent Volumes
 
 - `/etc/letsencrypt`: Generated domain certificates stored in domain specific folders.
 
   _Stored as Docker volume: `letsencrypt`_
+
+- `/etc/nginx/ssl`: Common certificates for all domains, e.g. Diffie-Hellman parameters file.
+
+  _Stored as Docker volume: `ssl`_
 
 - `/var/log/nginx`: Nginx access and error logs.
 
@@ -71,8 +100,12 @@ Every domain to request certificates for must be stored in folder `conf.d`. The 
 server {
   listen              443 ssl default_server;
   server_name         domain.com;
+
   ssl_certificate     /etc/letsencrypt/live/domain.com/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/domain.com/privkey.pem;
+
+  include             /etc/nginx/secure.d/header.conf;
+  include             /etc/nginx/secure.d/ssl.conf;
 
   location / {
     ...
@@ -80,8 +113,6 @@ server {
 }
 ```
 
-> &nbsp;
->
 > :wave: &nbsp; **INFO**
 >
 > It's very important that the domain name (e.g. `my-site.io`) match for:
@@ -91,18 +122,12 @@ server {
 > - Configuration properties
 >   - `ssl_certificate` to be `/etc/letsencrypt/live/my-site.io/fullchain.pem`
 >   - `ssl_certificate_key` to be `/etc/letsencrypt/live/my-site.io/privkey.pem`
->
-> &nbsp;
 
 &nbsp;
 
-> &nbsp;
->
 > :fire: &nbsp; **WARNING**
 >
 > Using a `server` block that listens on port 80 may cause issues with renewal. This container will already handle forwarding to port 443, so they are unnecessary. See `nginx_conf.d/http.conf`.
->
-> &nbsp;
 
 ### Build and run yourself
 
@@ -123,17 +148,14 @@ docker run -it --rm -d \
            -v "$(pwd)/conf.d:/etc/nginx/user.conf.d:ro" \
            -v "$(pwd)/letsencrypt:/etc/letsencrypt" \
            -v "$(pwd)/nginx:/var/log/nginx" \
+           -v "$(pwd)/ssl:/etc/nginx/ssl" \
            --name nginx-certbot \
            nginx-certbot:local
 ```
 
-> &nbsp;
->
 > :bulb: &nbsp; **NOTE**
 >
 > Here we use local folders for volumes `letsencrypt` and `nginx`, to benefit transparency during testing. For a production like setup this is not recommended.
->
-> &nbsp;
 
 ### Run with `docker-compose`
 
@@ -155,10 +177,12 @@ services:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
       - nginx:/var/log/nginx
+      - ssl:/etc/nginx/ssl
 
 volumes:
   letsencrypt:
   nginx:
+  ssl:
 ```
 
 Then pull the image, build and start the container:
@@ -168,7 +192,29 @@ docker-compose build --pull
 docker-compose -d up
 ```
 
-## :wrench: &nbsp; Useful Docker commands
+### Run isolated tests
+
+Isolated test are used when the computer can not receive reponses from Let's Encrypt. Mostly this is your local development computer.
+
+During these tests no requests are sent to Let's Encrypt but the process is otherwise the real one. By running isolated tests the developer can see the output of the latest changes and get a quick sanity check as a complement to unit tests.
+
+The only problem is the certificates provided by Let's Encrypt and this connection is, stated above, disconnected. Luckily there's a script creating self signed certificate files.
+
+```sh
+./isolated-test/make-certs.sh
+```
+
+```sh
+docker-compose up
+```
+
+A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's nothing stopping from creating more fake domains. Just create certificates from those domains as well, e.g. `my-site.com`.
+
+```sh
+./isolated-test/make-certs.sh my-site.com
+```
+
+## :whale: &nbsp; Useful Docker commands
 
 ### Running containers
 
@@ -182,48 +228,77 @@ docker ps
 
 ```sh
 # Follow log output run-time
-docker logs container-name -f
+docker logs -f container-name
 
 # Display last 50 rows
-docker logs container-name -n 50
+docker logs -n 50 container-name
 
 # Prefix rows with timestamp
-docker logs container-name -t
+docker logs -f container-name
+```
+
+These logs are also saved by `winston` as JSON objects to `logs/` folder.
+
+```sh
+# Error logs
+docker exec container-name tail -200f logs/error.log
+
+# All other log level
+docker exec container-name tail -200f logs/combined.log
 ```
 
 ### List all `Let's Encrypt` domain folders
 
 ```sh
-docker exec ls -la /etc/letsencrypt/live container-name
+docker exec container-name ls -la /etc/letsencrypt/live
 ```
 
 ### List secret files for domain `domain.com`
 
 ```sh
-docker exec ls -la /etc/letsencrypt/live/domain.com container-name
+docker exec container-name ls -la /etc/letsencrypt/live/domain.com
 ```
 
 ### Display `Nginx` main configuration
 
 ```sh
-docker exec cat /etc/nginx/nginx.conf container-name
+docker exec container-name cat /etc/nginx/nginx.conf
 ```
 
 ### List read-only `Nginx` configuration files provided by `nginx-certbot` image
 
 ```sh
-docker exec ls -la /etc/nginx/conf.d container-name
+# http/https configuration
+docker exec container-name ls -la /etc/nginx/conf.d
+
+# Secure server
+docker exec container-name ls -la /etc/nginx/secure.d
 ```
 
 ### Follow `Nginx` logs
 
 ```sh
 # Access logs
-docker logs -f /var/log/nginx/access.log container-name
+docker exec container-name tail -200f /var/log/nginx/access.log
 
 # Error logs
-docker logs -f /var/log/nginx/error.log container-name
+docker exec container-name tail -200f /var/log/nginx/error.log
 ```
+
+## :policeman: &nbsp; Domain security
+
+_To be written_
+
+### Image provided configuration
+
+Explain content of
+
+- `/etc/nginx/secure.d/header.conf`
+- `/etc/nginx/secure.d/ssl.conf`
+
+### Diffie-Hellman parameters
+
+...
 
 ## :man_shrugging: &nbsp; How does this work?
 
@@ -232,20 +307,9 @@ _To be written..._
 ## :bookmark: &nbsp; Reference sites
 
 - [Let's Encrypt](https://letsencrypt.org/)
-- [certbot](https://certbot.eff.org/)
+- [Certbot](https://certbot.eff.org/)
 - [GitHub Actions using Docker buildx](https://github.com/marketplace/actions/build-and-push-docker-images#usage)
 
 ## :pray: &nbsp; Acknowledgments
 
 This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to convert from `bash` to `TypeScript` and privde unit tests. Still many good ideas are kept but in a different form.
-
-## :rocket: &nbsp; TODOs
-
-- Provide `nginx.conf` file instead of using the default config to apply gzip
-- Better security, [https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/](https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/)
-- Implement `.env` files as optional alternative
-- Add workflow action tests
-- Publish docs generated by `compodoc`
-- Publish `Nx` dependency graph
-- Auto-upgrade with `Watchdog`
-- Only trigger action when files related to docker image was changed (maybe)

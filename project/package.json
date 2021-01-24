@@ -33,7 +33,8 @@
 		"fs": "^0.0.1-security",
 		"glob": "^7.1.6",
 		"path": "^0.12.7",
-		"rxjs": "^6.6.3"
+		"rxjs": "^6.6.3",
+		"winston": "^3.3.3"
 	},
 	"devDependencies": {
 		"@nrwl/cli": "11.0.18",

@@ -26,6 +26,7 @@
 								"sourceTag": "scope:certbot",
 								"onlyDependOnLibsWithTags": [
 									"scope:certbot",
+									"scope:logger",
 									"scope:store",
 									"type:setup",
 									"type:util"
@@ -35,13 +36,15 @@
 								"sourceTag": "scope:config",
 								"onlyDependOnLibsWithTags": [
 									"scope:config",
-									"scope:environment"
+									"scope:environment",
+									"scope:logger"
 								]
 							},
 							{
 								"sourceTag": "scope:domain",
 								"onlyDependOnLibsWithTags": [
 									"scope:domain",
+									"scope:logger",
 									"scope:store",
 									"type:setup",
 									"type:util"
@@ -50,6 +53,7 @@
 							{
 								"sourceTag": "scope:nginx",
 								"onlyDependOnLibsWithTags": [
+									"scope:logger",
 									"scope:nginx",
 									"scope:store",
 									"type:setup",
@@ -58,7 +62,7 @@
 							},
 							{
 								"sourceTag": "scope:util",
-								"onlyDependOnLibsWithTags": ["scope:util"]
+								"onlyDependOnLibsWithTags": ["scope:logger", "scope:util"]
 							}
 						]
 					}

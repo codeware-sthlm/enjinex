@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
-import { execute } from '@tx/util';
+import { spawn, spawnSync } from 'child_process';
+import { logger } from '@tx/logger';
 
 /**
  * Spawn `nginx` as child process and setup listeners on
@@ -13,21 +13,21 @@ import { execute } from '@tx/util';
 export const startNginxAndSetupListeners = () => {
 	const nginx = spawn('nginx', ['-g', 'daemon off;']);
 
-	console.log(`[init] Starting nginx as child process with PID ${nginx.pid}`);
+	logger.info(`Starting nginx as child process with PID ${nginx.pid}`);
 
 	// Exit parent process when nginx is closed
 	nginx.on('close', (code, signal) => {
-		console.log(`[nginx] Closed with code ${code} signal ${signal}`);
-		console.log('[nginx] Exit parent process with code 3');
+		logger.info(`Nginx closed with code ${code} signal ${signal}`);
+		logger.info('Exit parent process with code 3');
 		process.exit(3);
 	});
 
 	// Just log
-	nginx.stdout.on('data', (data) => console.log(`[nginx] ${data}`));
-	nginx.stderr.on('data', (data) => console.error(`[nginx] ${data}`));
-	nginx.on('disconnect', () => console.log(`[nginx] Disconnected`));
+	nginx.stdout.on('data', (data) => logger.info(`${data}`));
+	nginx.stderr.on('data', (data) => logger.error(`${data}`));
+	nginx.on('disconnect', () => logger.info(`Nginx disconnected`));
 	nginx.on('error', (err) =>
-		console.error(`[nginx] Received error: ${err.message}`)
+		logger.error(`Nginx received error: ${err.message}`)
 	);
 
 	return nginx;
@@ -35,12 +35,13 @@ export const startNginxAndSetupListeners = () => {
 
 /**
  * Test `nginx` configuration
- * @returns test messages as promise
+ * @returns `true` if test was successful
  */
 export const testNginxConfiguration = () => {
-	return execute('nginx -t').then((value) => {
-		// nginx actually writes this output to stderr
-		console.log(`${value.stderr}`);
-		return value.stderr;
-	});
+	const status = spawnSync('nginx', ['-t']);
+	if (status.error) {
+		logger.error(`${status.error.message}`);
+		return false;
+	}
+	return true;
 };

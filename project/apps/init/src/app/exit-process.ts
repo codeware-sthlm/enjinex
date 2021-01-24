@@ -1,4 +1,5 @@
 import { ChildProcessWithoutNullStreams } from 'child_process';
+import { logger } from '@tx/logger';
 
 /**
  * Exit parent process and nginx child process when active
@@ -9,12 +10,12 @@ export const exitAllProcesses = (
 	signal: string,
 	nginx: ChildProcessWithoutNullStreams
 ) => {
-	console.log(`[init] ${signal} received`);
+	logger.info(`${signal} received`);
 	if (nginx?.pid && nginx?.connected) {
-		console.log(`[init] Disconnect nginx child process...`);
+		logger.info(`Disconnect nginx child process...`);
 		nginx.disconnect();
 	}
 	const exitCode = 0;
-	console.log(`[init] Exit with code ${exitCode}`);
+	logger.info(`Exit with code ${exitCode}`);
 	process.exit(exitCode);
 };

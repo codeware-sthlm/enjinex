@@ -7,6 +7,7 @@ module.exports = {
 		'<rootDir>/libs/environment',
 		'<rootDir>/libs/store',
 		'<rootDir>/apps/init',
-		'<rootDir>/libs/nginx'
+		'<rootDir>/libs/nginx',
+		'<rootDir>/libs/logger'
 	]
 };

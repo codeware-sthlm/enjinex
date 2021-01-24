@@ -1,6 +1,8 @@
+import { spawnSync } from 'child_process';
+
 import { requestCertificate } from '@tx/certbot';
 import { getDomains } from '@tx/domain';
-import { execute } from '@tx/util';
+import { logger } from '@tx/logger';
 
 import { renewalProcess } from './renewal-process';
 
@@ -13,12 +15,8 @@ jest.mock('@tx/domain', () => ({
 	enableDomain: jest.fn(),
 	getDomains: jest.fn().mockReturnValue(['my-site.com'])
 }));
-jest.mock('@tx/util', () => ({
-	execute: jest.fn().mockImplementation(() => {
-		return new Promise((resolve) => {
-			resolve({ stdout: '', stderr: '' });
-		}) as never;
-	})
+jest.mock('child_process', () => ({
+	spawnSync: jest.fn().mockReturnValue({ error: undefined })
 }));
 
 /** Set all default values since mocked functions are individual for each test */
@@ -27,19 +25,13 @@ const setDefaultMockValues = () => {
 
 	(getDomains as jest.Mock).mockReturnValue(['my-site.com']);
 
-	(requestCertificate as jest.Mock).mockReturnValue(
-		new Promise((resolve) => resolve(true))
-	);
+	(requestCertificate as jest.Mock).mockReturnValue(true);
 
-	(execute as jest.Mock).mockImplementation(() => {
-		return new Promise((resolve) => {
-			resolve({ stdout: 'ok', stderr: '' });
-		}) as never;
-	});
+	(spawnSync as jest.Mock).mockReturnValue({ error: undefined });
 };
 
-console.log = jest.fn();
-console.error = jest.fn();
+logger.log = jest.fn();
+logger.error = jest.fn();
 
 describe('renewal-process', () => {
 	beforeEach(() => {
@@ -47,37 +39,33 @@ describe('renewal-process', () => {
 		setDefaultMockValues();
 	});
 
-	it('should exit and return status code 1 when CERTBOT_EMAIL not set', async () => {
+	it('should exit and return status code 1 when CERTBOT_EMAIL not set', () => {
 		process.env.CERTBOT_EMAIL = '';
-		const statusCode = await renewalProcess();
+		const statusCode = renewalProcess();
 		expect(statusCode).toBe(1);
-		expect(console.error).toHaveBeenCalledTimes(1);
+		expect(logger.error).toHaveBeenCalledTimes(1);
 	});
 
-	it('should return status code 2 when request failed', async () => {
-		(requestCertificate as jest.Mock).mockReturnValue(
-			new Promise((resolve) => resolve(false))
-		);
-		const statusCode = await renewalProcess();
+	it('should return status code 2 when request failed', () => {
+		(requestCertificate as jest.Mock).mockReturnValue(false);
+		const statusCode = renewalProcess();
 		expect(statusCode).toBe(2);
-		expect(console.error).toHaveBeenCalledTimes(0);
-		expect(execute).toHaveBeenCalledTimes(1);
+		expect(logger.error).toHaveBeenCalledTimes(0);
+		expect(spawnSync).toHaveBeenCalledTimes(1);
 	});
 
-	it('should return status code 3 when nginx reload failed', async () => {
-		(execute as jest.Mock).mockImplementation(() => {
-			return new Promise((resolve) => {
-				resolve({ stdout: '', stderr: 'reload error' });
-			}) as never;
+	it('should return status code 3 when nginx reload failed', () => {
+		(spawnSync as jest.Mock).mockReturnValue({
+			error: { message: 'reload error' }
 		});
-		const statusCode = await renewalProcess();
+		const statusCode = renewalProcess();
 		expect(statusCode).toBe(3);
-		expect(execute).toHaveBeenCalledWith('nginx -s reload');
-		expect(console.error).toHaveBeenLastCalledWith('reload error');
+		expect(spawnSync).toHaveBeenCalledWith('nginx', ['-s', 'reload']);
+		expect(logger.error).toHaveBeenLastCalledWith('reload error');
 	});
 
-	it('should return status code 0 successful', async () => {
-		const statusCode = await renewalProcess();
+	it('should return status code 0 successful', () => {
+		const statusCode = renewalProcess();
 		expect(statusCode).toBe(0);
 	});
 });

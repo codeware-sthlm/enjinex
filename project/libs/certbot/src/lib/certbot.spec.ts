@@ -1,67 +1,69 @@
+import { spawnSync } from 'child_process';
+
 import { getConfig } from '@tx/config';
+import { logger } from '@tx/logger';
 import { updateStore } from '@tx/store';
 
 import { requestCertificate } from './certbot';
 
 interface ExecResponse {
-	stdout: string;
-	stderr: string;
+	error: { message: string };
 }
 
 let execCommand: string;
 let domain: string;
 
-jest.mock('@tx/util', () => ({
-	execute: jest.fn().mockImplementation((command: string) => {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		return new Promise<ExecResponse>((resolve, reject) => {
-			execCommand = command;
-			if (command.includes('--cert-name  ')) {
-				resolve({ stdout: '', stderr: 'missing primary domain' });
+jest.mock('child_process', () => ({
+	spawnSync: jest.fn().mockImplementation(
+		(command: string, args: string[]): ExecResponse => {
+			execCommand = `${command} ${args.join(' ')}`;
+			if (execCommand.includes('--cert-name  ')) {
+				return { error: { message: 'missing primary domain' } };
 			}
-			resolve({ stdout: 'ok', stderr: '' });
-		});
-	})
+			return { error: undefined };
+		}
+	)
 }));
 
-console.log = jest.fn();
+logger.info = jest.fn();
+logger.error = jest.fn();
 
 describe('certbot', () => {
 	beforeEach(() => {
-		console.error = jest.fn();
+		logger.error = jest.fn();
 		domain = 'my-site.com';
 		execCommand = '';
 	});
 
-	it('should never have undefined in command', async () => {
-		await requestCertificate('');
+	it('should never have undefined in command', () => {
+		requestCertificate('');
 		expect(execCommand.includes('undefined')).toBeFalsy();
 
-		await requestCertificate(domain);
+		requestCertificate(domain);
 		expect(execCommand.includes('undefined')).toBeFalsy();
 
-		await requestCertificate(domain, ['a@b.com']);
+		requestCertificate(domain, ['a@b.com']);
 		expect(execCommand.includes('undefined')).toBeFalsy();
 	});
 
-	it('should return true for sucessful request', async () => {
-		const status = await requestCertificate(domain);
+	it('should return true for sucessful request', () => {
+		const status = requestCertificate(domain);
 		expect(status).toBeTruthy();
 	});
 
-	it('should print error and return false for failed request', async () => {
-		const status = await requestCertificate('');
-		expect(console.error).toHaveBeenCalledTimes(1);
+	it('should print error and return false for failed request', () => {
+		const status = requestCertificate('');
+		expect(logger.error).toHaveBeenCalledTimes(1);
 		expect(status).toBeFalsy();
 	});
 
-	it('should use certonly', async () => {
-		await requestCertificate(domain);
+	it('should use certonly', () => {
+		requestCertificate(domain);
 		expect(execCommand.includes('certonly')).toBeTruthy();
 	});
 
-	it('should use web root to store certificates', async () => {
-		await requestCertificate(domain);
+	it('should use web root to store certificates', () => {
+		requestCertificate(domain);
 		expect(
 			execCommand.includes(
 				`-a webroot --webroot-path=${getConfig().letsEncrypt.webRoot}`
@@ -69,51 +71,94 @@ describe('certbot', () => {
 		).toBeTruthy();
 	});
 
-	it('should use default RSA key size 2048', async () => {
-		await requestCertificate(domain);
+	it('should use default RSA key size 2048', () => {
+		requestCertificate(domain);
 		expect(execCommand.includes('--rsa-key-size 2048')).toBeTruthy();
 	});
 
-	it('should set email to env CERTBOT_EMAIL', async () => {
+	it('should set email to environment CERTBOT_EMAIL', () => {
 		process.env.CERTBOT_EMAIL = 'user@me.com';
-		await requestCertificate(domain);
+		requestCertificate(domain);
 		expect(
 			execCommand.includes(`--email ${process.env.CERTBOT_EMAIL}`)
 		).toBeTruthy();
 	});
 
-	it('should set default server to staging', async () => {
-		await requestCertificate(domain);
+	it('should set default server to staging', () => {
+		requestCertificate(domain);
 		expect(
 			execCommand.includes(`--server ${getConfig().letsEncrypt.stagingSite}`)
 		).toBeTruthy();
 	});
 
-	it('should set primary domain', async () => {
-		await requestCertificate(domain);
+	it('should set server to production when NODE_ENV is production', () => {
+		process.env.NODE_ENV = 'production';
+		requestCertificate(domain);
+		expect(
+			execCommand.includes(`--server ${getConfig().letsEncrypt.productionSite}`)
+		).toBeTruthy();
+	});
+
+	it('should set primary domain', () => {
+		requestCertificate(domain);
 		expect(execCommand.includes(`--cert-name ${domain}`)).toBeTruthy();
 	});
 
-	it('should set optional domains', async () => {
+	it('should set optional domains', () => {
 		const optDomains = ['a@a.com', 'b@b.com', 'c@c.com'];
 
-		await requestCertificate(domain);
+		requestCertificate(domain);
 		expect(
 			execCommand.includes('-d a@a.com -d b@b.com -d c@c.com')
 		).toBeFalsy();
 
-		await requestCertificate(domain, optDomains);
+		requestCertificate(domain, optDomains);
 		expect(
 			execCommand.includes('-d a@a.com -d b@b.com -d c@c.com')
 		).toBeTruthy();
 	});
 
-	it('should force renewal', async () => {
-		await requestCertificate(domain);
+	it('should not force renewal by default', () => {
+		requestCertificate(domain);
 		expect(execCommand.includes('--force-renewal')).toBeFalsy();
+	});
 
+	it('should trigger force renewal', () => {
 		updateStore({ forceRenew: true });
-		await requestCertificate(domain);
+		requestCertificate(domain);
 		expect(execCommand.includes('--force-renewal')).toBeTruthy();
+	});
+
+	it('should not use dry run request by default', () => {
+		requestCertificate(domain);
+		expect(execCommand.includes('--dry-run')).toBeFalsy();
+	});
+
+	it('should dry run request from DRY_RUN environment', () => {
+		process.env.DRY_RUN = 'N';
+		requestCertificate(domain);
+		expect(execCommand.includes('--dry-run')).toBeFalsy();
+
+		process.env.DRY_RUN = 'Y';
+		requestCertificate(domain);
+		expect(execCommand.includes('--dry-run')).toBeTruthy();
+	});
+
+	it('should not run in isolated mode by default', () => {
+		(spawnSync as jest.Mock).mockClear();
+		requestCertificate(domain);
+		expect(spawnSync).toBeCalledTimes(1);
+	});
+
+	it('should run in isolated mode from ISOLATED environment', () => {
+		(spawnSync as jest.Mock).mockClear();
+		process.env.ISOLATED = 'N';
+		requestCertificate(domain);
+		expect(spawnSync).toBeCalledTimes(1);
+
+		(spawnSync as jest.Mock).mockClear();
+		process.env.ISOLATED = 'Y';
+		requestCertificate(domain);
+		expect(spawnSync).not.toBeCalled();
 	});
 });

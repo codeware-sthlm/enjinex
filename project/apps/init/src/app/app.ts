@@ -1,7 +1,12 @@
 import { ChildProcessWithoutNullStreams } from 'child_process';
 
 import { disablePendingDomains, transferUserConfig } from '@tx/domain';
-import { startNginxAndSetupListeners, testNginxConfiguration } from '@tx/nginx';
+import { logger } from '@tx/logger';
+import {
+	generateDiffieHellmanFile,
+	startNginxAndSetupListeners,
+	testNginxConfiguration
+} from '@tx/nginx';
 
 import { exitAllProcesses } from './exit-process';
 import { startMainLoop } from './main-loop';
@@ -15,29 +20,35 @@ import { startMainLoop } from './main-loop';
 export const app = () => {
 	let nginx: ChildProcessWithoutNullStreams;
 
-	console.log(`[init] Start main process with PID ${process.pid}`);
+	logger.info(`Start main process with PID ${process.pid}`);
 
 	// main process should listen to signals to prevent zombie child processes
-	console.log('[init] Listen to SIGINT and SIGTERM');
+	logger.info('Listen to SIGINT and SIGTERM signals');
 	process.on('SIGINT', (signal) => exitAllProcesses(signal, nginx));
 	process.on('SIGTERM', (signal) => exitAllProcesses(signal, nginx));
 
-	console.log('[init] Transfer user configuration to nginx configuration');
-	transferUserConfig();
+	logger.info('Diffie-Hellman parameters file...');
+	if (!generateDiffieHellmanFile()) {
+		process.exit(1);
+	}
+	logger.info(`File OK`);
 
-	console.log('[init] Disable pending domains');
-	disablePendingDomains();
+	logger.info('Transfer user configuration to nginx configuration...');
+	const transferedFiles = transferUserConfig();
+	logger.info(`${transferedFiles} config files was transfered`);
 
-	console.log('[init] Test nginx configuration');
-	testNginxConfiguration()
-		.then(() => {
-			// ok start the main processes
-			nginx = startNginxAndSetupListeners();
-			startMainLoop(nginx);
-		})
-		.catch((err) => {
-			console.error(`[init] ${err}`);
-			console.log('[init] Exit parent process with code 2');
-			process.exit(2);
-		});
+	logger.info('Disable pending domains...');
+	const disabledDomains = disablePendingDomains();
+	logger.info(`${disabledDomains} domains was disabled`);
+
+	logger.info('Test nginx configuration...');
+	if (testNginxConfiguration()) {
+		logger.info('Test OK');
+		// ok start the main processes
+		nginx = startNginxAndSetupListeners();
+		startMainLoop(nginx);
+	} else {
+		logger.warn('Test failed -> Exit parent process with code 2');
+		process.exit(2);
+	}
 };
