@@ -26,7 +26,7 @@ const allConfigKeyFilesExists = (filePath: string): boolean => {
 				if (idx) {
 					const pemFile = line.substring(idx).trim();
 					if (!existsSync(pemFile)) {
-						logger.debug(`Key file found: ${pemFile}`);
+						logger.debug(`Key file not found: ${pemFile}`);
 						fileIsMissing = true;
 					}
 				}

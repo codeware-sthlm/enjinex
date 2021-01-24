@@ -25,12 +25,24 @@ fsMock({
 		'domain.com.conf': '',
 		'site.com.conf': ''
 	},
-	'config.d': fsMock.load(join(dirname(__filename), 'test-files'), {
+	'config.d': fsMock.load(join(dirname(__filename), 'test-files', 'config.d'), {
 		lazy: false
-	})
+	}),
+	'secure.d': fsMock.load(join(dirname(__filename), 'test-files', 'secure.d'), {
+		lazy: false
+	}),
+	ssl: fsMock.load(join(dirname(__filename), 'test-files', 'ssl'), {
+		lazy: false
+	}),
+	letsencrypt: fsMock.load(
+		join(dirname(__filename), 'test-files', 'letsencrypt'),
+		{
+			lazy: false
+		}
+	)
 });
 
-//logger.info = jest.fn();
+logger.info = jest.fn();
 
 describe('domain', () => {
 	afterAll(() => fsMock.restore());
@@ -94,4 +106,8 @@ describe('domain', () => {
 		enableDomain('valid-keys-site.com');
 		expect(fs.rename).toHaveBeenCalledTimes(0);
 	});
+
+	it.todo('should disable domain that are missing dhparam.pem');
+	it.todo('should not enale domain that are missing dhparam.pem');
+	it.todo('should emable pending domain that have dhparam.pem');
 });

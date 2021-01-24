@@ -17,9 +17,11 @@ services:
     volumes:
       - ./isolated-test/conf.d:/etc/nginx/user.conf.d:ro
       - ./isolated-test/letsencrypt:/etc/letsencrypt
+      - ./isolated-test/ssl:/etc/nginx/ssl
       - ./isolated-test/nginx:/var/log/nginx
       - ./isolated-test/logs:/logs
 
 volumes:
   letsencrypt:
   nginx:
+  ssl:

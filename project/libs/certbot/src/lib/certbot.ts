@@ -61,7 +61,7 @@ export const requestCertificate = (
 	if (status.error) {
 		logger.error(`Failed with message '${status.error.message}'`);
 	} else {
-		logger.info('Status OK');
+		logger.info('Renewal done');
 	}
 
 	// Return false when we have an error

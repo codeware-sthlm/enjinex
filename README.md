@@ -19,8 +19,8 @@ Create and automatically renew website SSL certificates using the free [Let's En
 | Monorepo tooling by [Nx](nx.dev)                   | :white_check_mark:   |
 | Unit tests                                         | :white_check_mark:   |
 | Auto linting                                       | :white_check_mark:   |
-| Highest level SSL security                         | :white_large_square: |
-| Diffie-Hellman parameters                          | :white_large_square: |
+| SSL security                                       | :white_check_mark:   |
+| Diffie-Hellman parameters                          | :white_check_mark:   |
 | Group domains by a common domain owner             | :white_large_square: |
 | Email renewal events to domain owner               | :white_large_square: |
 | Compodoc technical docs                            | :white_large_square: |
@@ -29,7 +29,23 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 - [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
 - [:dart: &nbsp; Usage](#dart--usage)
+  - [Prerequisites](#prerequisites)
+  - [Environment Variables](#environment-variables)
+    - [Required](#required)
+    - [Optional](#optional)
+  - [Persistent Volumes](#persistent-volumes)
+  - [Domain Configurations](#domain-configurations)
+  - [Build and run yourself](#build-and-run-yourself)
+  - [Run with `docker-compose`](#run-with-docker-compose)
+  - [Run isolated tests](#run-isolated-tests)
 - [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
+  - [Running containers](#running-containers)
+  - [Container logs](#container-logs)
+  - [List all `Let's Encrypt` domain folders](#list-all-lets-encrypt-domain-folders)
+  - [List secret files for domain `domain.com`](#list-secret-files-for-domain-domaincom)
+  - [Display `Nginx` main configuration](#display-nginx-main-configuration)
+  - [List read-only `Nginx` configuration files provided by `nginx-certbot` image](#list-read-only-nginx-configuration-files-provided-by-nginx-certbot-image)
+  - [Follow `Nginx` logs](#follow-nginx-logs)
 - [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
 - [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
 - [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
@@ -77,6 +93,10 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
   _Stored as Docker volume: `letsencrypt`_
 
+- `/etc/nginx/ssl`: Common certificates for all domains, e.g. Diffie-Hellman parameters file.
+
+  _Stored as Docker volume: `ssl`_
+
 - `/var/log/nginx`: Nginx access and error logs.
 
   _Stored as Docker volume: `nginx`_
@@ -89,8 +109,12 @@ Every domain to request certificates for must be stored in folder `conf.d`. The 
 server {
   listen              443 ssl default_server;
   server_name         domain.com;
+
   ssl_certificate     /etc/letsencrypt/live/domain.com/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/domain.com/privkey.pem;
+
+  include             /etc/nginx/secure.d/header.conf;
+  include             /etc/nginx/secure.d/ssl.conf;
 
   location / {
     ...
@@ -250,7 +274,11 @@ docker exec container-name cat /etc/nginx/nginx.conf
 ### List read-only `Nginx` configuration files provided by `nginx-certbot` image
 
 ```sh
+# http/https configuration
 docker exec container-name ls -la /etc/nginx/conf.d
+
+# Secure server
+docker exec container-name ls -la /etc/nginx/secure.d
 ```
 
 ### Follow `Nginx` logs

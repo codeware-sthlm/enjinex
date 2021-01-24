@@ -13,21 +13,21 @@ import { logger } from '@tx/logger';
 export const startNginxAndSetupListeners = () => {
 	const nginx = spawn('nginx', ['-g', 'daemon off;']);
 
-	logger.info(`[init] Starting nginx as child process with PID ${nginx.pid}`);
+	logger.info(`Starting nginx as child process with PID ${nginx.pid}`);
 
 	// Exit parent process when nginx is closed
 	nginx.on('close', (code, signal) => {
-		logger.info(`[nginx] Closed with code ${code} signal ${signal}`);
-		logger.info('[nginx] Exit parent process with code 3');
+		logger.info(`Nginx closed with code ${code} signal ${signal}`);
+		logger.info('Exit parent process with code 3');
 		process.exit(3);
 	});
 
 	// Just log
-	nginx.stdout.on('data', (data) => logger.info(`[nginx] ${data}`));
-	nginx.stderr.on('data', (data) => logger.error(`[nginx] ${data}`));
-	nginx.on('disconnect', () => logger.info(`[nginx] Disconnected`));
+	nginx.stdout.on('data', (data) => logger.info(`${data}`));
+	nginx.stderr.on('data', (data) => logger.error(`${data}`));
+	nginx.on('disconnect', () => logger.info(`Nginx disconnected`));
 	nginx.on('error', (err) =>
-		logger.error(`[nginx] Received error: ${err.message}`)
+		logger.error(`Nginx received error: ${err.message}`)
 	);
 
 	return nginx;
@@ -40,7 +40,7 @@ export const startNginxAndSetupListeners = () => {
 export const testNginxConfiguration = () => {
 	const status = spawnSync('nginx', ['-t']);
 	if (status.error) {
-		logger.error(`ERROR: ${status.error.message}`);
+		logger.error(`${status.error.message}`);
 		return false;
 	}
 	return true;

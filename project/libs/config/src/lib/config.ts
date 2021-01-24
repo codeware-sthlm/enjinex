@@ -25,6 +25,13 @@ export interface Config {
 		/** user provided domain configuration path */
 		userConfigPath: string;
 	};
+	/** ssl security properties */
+	ssl: {
+		/** Diffie-Hellman parameters file */
+		dhparamFile: string;
+		/** Diffie-Hellman file bits */
+		dhparamBits: number;
+	};
 }
 
 /**
@@ -46,6 +53,10 @@ export function getConfig(): Config {
 		nginx: {
 			configPath: '/etc/nginx/conf.d',
 			userConfigPath: '/etc/nginx/user.conf.d'
+		},
+		ssl: {
+			dhparamFile: '/etc/nginx/ssl/dhparam.pem',
+			dhparamBits: 2048
 		}
 	};
 }

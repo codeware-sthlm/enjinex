@@ -2,7 +2,11 @@ import { ChildProcessWithoutNullStreams } from 'child_process';
 
 import { disablePendingDomains, transferUserConfig } from '@tx/domain';
 import { logger } from '@tx/logger';
-import { startNginxAndSetupListeners, testNginxConfiguration } from '@tx/nginx';
+import {
+	generateDiffieHellmanFile,
+	startNginxAndSetupListeners,
+	testNginxConfiguration
+} from '@tx/nginx';
 
 import { exitAllProcesses } from './exit-process';
 import { startMainLoop } from './main-loop';
@@ -23,6 +27,12 @@ export const app = () => {
 	process.on('SIGINT', (signal) => exitAllProcesses(signal, nginx));
 	process.on('SIGTERM', (signal) => exitAllProcesses(signal, nginx));
 
+	logger.info('Diffie-Hellman parameters file...');
+	if (!generateDiffieHellmanFile()) {
+		process.exit(1);
+	}
+	logger.info(`File OK`);
+
 	logger.info('Transfer user configuration to nginx configuration...');
 	const transferedFiles = transferUserConfig();
 	logger.info(`${transferedFiles} config files was transfered`);
@@ -33,7 +43,7 @@ export const app = () => {
 
 	logger.info('Test nginx configuration...');
 	if (testNginxConfiguration()) {
-		logger.info('Status: OK');
+		logger.info('Test OK');
 		// ok start the main processes
 		nginx = startNginxAndSetupListeners();
 		startMainLoop(nginx);
