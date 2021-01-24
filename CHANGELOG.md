@@ -1,8 +1,4 @@
-# 0.3 (2021-01-xx)
-
-Bug fix
-
-- Second domain request failed due to certbot lock file
+# 0.3 (2021-01-24)
 
 Features
 
@@ -16,18 +12,23 @@ Enhancement
 
 - Use syncron child processes only to stop using async await decorators
 - Add more tests to `certbot` lib
-- Improve ssl security
+- Improve ssl security to get A+ by SSL Labs
 - Remove support for TLS V1.1, it's soon deprecated
 
+Bug fix
+
+- Second domain request failed due to certbot lock file
+- Various fixes...
+
 # 0.2 (2021-01-15)
+
+Enhancement
+
+- Add optional environment variables to readme
 
 Bug fix
 
 - Renewal failed for single domain request
-
-Other
-
-- Add optional environment variables to readme
 
 # 0.1 (2021-01-13)
 
