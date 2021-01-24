@@ -34,29 +34,41 @@ export const requestCertificate = (
 
 	// Create certbot command
 	const config = getConfig().letsEncrypt;
-	const command = `
-      certbot certonly \
-        --agree-tos --keep -n --text \
-        -a webroot --webroot-path=${config.webRoot} \
-        --rsa-key-size ${config.rsaKeySize} \
-        --preferred-challenges http-01 \
-        --email ${getEnv().CERTBOT_EMAIL} \
-        --server ${getLetsEncryptServer()} \
-        --cert-name ${primaryDomain} \
-        ${includeDomainArg} \
-        ${forceRenewal} \
-        ${dryRun} \
-        --debug`;
+	const command = 'certbot';
+	const args = [
+		'certonly',
+		'--agree-tos',
+		'--keep',
+		'-n',
+		'--text',
+		'-a',
+		'webroot',
+		`--webroot-path=${config.webRoot}`,
+		'--rsa-key-size',
+		`${config.rsaKeySize}`,
+		'--preferred-challenges',
+		'http-01',
+		'--email',
+		`${getEnv().CERTBOT_EMAIL}`,
+		'--server',
+		`${getLetsEncryptServer()}`,
+		'--cert-name',
+		`${primaryDomain}`,
+		`${includeDomainArg}`,
+		`${forceRenewal}`,
+		`${dryRun}`,
+		'--debug'
+	];
 
-	let status: SpawnSyncReturns<Buffer>;
+	let status: SpawnSyncReturns<string>;
 	if (!isolated) {
 		// Spawn command syncron and hence request the certificate
-		status = spawnSync(command);
+		status = spawnSync(command, args);
 	} else {
 		logger.info('Running in isolated mode, no request will be made!');
 		logger.info('certbot request command:');
 		logger.info(command);
-		status = { error: null } as SpawnSyncReturns<Buffer>;
+		status = { error: null } as SpawnSyncReturns<string>;
 	}
 	if (status.error) {
 		logger.error(`Failed with message '${status.error.message}'`);

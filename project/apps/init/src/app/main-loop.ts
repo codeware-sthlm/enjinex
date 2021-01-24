@@ -16,7 +16,7 @@ export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
 	const timer = setIntervalWithoutDelay(async () => {
 		const status = renewalProcess();
 		if (status > 0) {
-			timer.unref();
+			if (timer) timer.unref();
 			exitAllProcesses('renewal failed', nginx);
 		}
 		logger.info(

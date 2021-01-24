@@ -6,46 +6,31 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 ## :round_pushpin: &nbsp; Features <!-- omit in toc -->
 
-|                                                    |                      |
-| -------------------------------------------------- | -------------------- |
-| Distributed as Docker image                        | :white_check_mark:   |
-| Built with Node                                    | :white_check_mark:   |
-| Type safe code with TypeScript                     | :white_check_mark:   |
-| Multi-platform support                             | :white_check_mark:   |
-| Node signal handling to prevent zombies            | :white_check_mark:   |
-| Configure multiple domains                         | :white_check_mark:   |
-| Automatic Let's Encrypt certificate renewal        | :white_check_mark:   |
-| Persistent volumes for certificates and Nginx logs | :white_check_mark:   |
-| Monorepo tooling by [Nx](nx.dev)                   | :white_check_mark:   |
-| Unit tests                                         | :white_check_mark:   |
-| Auto linting                                       | :white_check_mark:   |
-| SSL security                                       | :white_check_mark:   |
-| Diffie-Hellman parameters                          | :white_check_mark:   |
-| Group domains by a common domain owner             | :white_large_square: |
-| Email renewal events to domain owner               | :white_large_square: |
-| Compodoc technical docs                            | :white_large_square: |
+|                                                      |                      |
+| ---------------------------------------------------- | -------------------- |
+| Distributed as Docker image                          | :white_check_mark:   |
+| Built with Node                                      | :white_check_mark:   |
+| Type safe code with TypeScript                       | :white_check_mark:   |
+| Multi-platform support                               | :white_check_mark:   |
+| Node signal handling to prevent zombies              | :white_check_mark:   |
+| Configure multiple domains                           | :white_check_mark:   |
+| Automatic Let's Encrypt certificate renewal          | :white_check_mark:   |
+| Persistent volumes for certificates and Nginx logs   | :white_check_mark:   |
+| Monorepo tooling by [Nx](nx.dev)                     | :white_check_mark:   |
+| Unit tests                                           | :white_check_mark:   |
+| Auto linting                                         | :white_check_mark:   |
+| A+ overall rating at [SSL Labs](https://ssllabs.com) | :white_check_mark:   |
+| Diffie-Hellman parameters                            | :white_check_mark:   |
+| Group domains by a common domain owner               | :white_large_square: |
+| Email renewal events to domain owner                 | :white_large_square: |
+| Compodoc technical docs                              | :white_large_square: |
 
 ## Table of contents <!-- omit in toc -->
 
 - [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
 - [:dart: &nbsp; Usage](#dart--usage)
-  - [Prerequisites](#prerequisites)
-  - [Environment Variables](#environment-variables)
-    - [Required](#required)
-    - [Optional](#optional)
-  - [Persistent Volumes](#persistent-volumes)
-  - [Domain Configurations](#domain-configurations)
-  - [Build and run yourself](#build-and-run-yourself)
-  - [Run with `docker-compose`](#run-with-docker-compose)
-  - [Run isolated tests](#run-isolated-tests)
 - [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
-  - [Running containers](#running-containers)
-  - [Container logs](#container-logs)
-  - [List all `Let's Encrypt` domain folders](#list-all-lets-encrypt-domain-folders)
-  - [List secret files for domain `domain.com`](#list-secret-files-for-domain-domaincom)
-  - [Display `Nginx` main configuration](#display-nginx-main-configuration)
-  - [List read-only `Nginx` configuration files provided by `nginx-certbot` image](#list-read-only-nginx-configuration-files-provided-by-nginx-certbot-image)
-  - [Follow `Nginx` logs](#follow-nginx-logs)
+- [Domain security](#domain-security)
 - [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
 - [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
 - [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
@@ -157,6 +142,7 @@ docker run -it --rm -d \
            -v "$(pwd)/conf.d:/etc/nginx/user.conf.d:ro" \
            -v "$(pwd)/letsencrypt:/etc/letsencrypt" \
            -v "$(pwd)/nginx:/var/log/nginx" \
+           -v "$(pwd)/ssl:/etc/nginx/ssl" \
            --name nginx-certbot \
            nginx-certbot:local
 ```
@@ -185,10 +171,12 @@ services:
       - ./conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
       - nginx:/var/log/nginx
+      - ssl:/etc/nginx/ssl
 
 volumes:
   letsencrypt:
   nginx:
+  ssl:
 ```
 
 Then pull the image, build and start the container:
@@ -291,6 +279,8 @@ docker exec container-name tail -200f /var/log/nginx/access.log
 docker exec container-name tail -200f /var/log/nginx/error.log
 ```
 
+## Domain security
+
 ## :man_shrugging: &nbsp; How does this work?
 
 _To be written..._
@@ -308,7 +298,6 @@ This repository was originally cloned from `@staticfloat`, kudos to him and all 
 ## :rocket: &nbsp; TODOs <!-- omit in toc -->
 
 - Provide `nginx.conf` file instead of using the default config to apply gzip
-- Better security, [https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/](https://upcloud.com/community/tutorials/install-lets-encrypt-nginx/)
 - Implement `.env` files as optional alternative
 - Add test job to workflow
 - Publish docs generated by `compodoc`

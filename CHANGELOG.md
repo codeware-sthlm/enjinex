@@ -10,11 +10,13 @@ Features
 - Use ISOLATED environment to run without real certbot requests
 - Provide script to create self signed Let's Encrypt certs for isoleted test
 - Use Winston for logging
+- Use Diffie-Hellman parameters file
 
 Enhancement
 
 - Use syncron child processes only to stop using async await decorators
 - Add more tests to `certbot` lib
+- Improve ssl security
 
 # 0.2 (2021-01-15)
 

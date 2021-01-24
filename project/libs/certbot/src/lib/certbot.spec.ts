@@ -15,9 +15,9 @@ let domain: string;
 
 jest.mock('child_process', () => ({
 	spawnSync: jest.fn().mockImplementation(
-		(command: string): ExecResponse => {
-			execCommand = command;
-			if (command.includes('--cert-name  ')) {
+		(command: string, args: string[]): ExecResponse => {
+			execCommand = `${command} ${args.join(' ')}`;
+			if (execCommand.includes('--cert-name  ')) {
 				return { error: { message: 'missing primary domain' } };
 			}
 			return { error: undefined };
@@ -25,7 +25,8 @@ jest.mock('child_process', () => ({
 	)
 }));
 
-logger.log = jest.fn();
+logger.info = jest.fn();
+logger.error = jest.fn();
 
 describe('certbot', () => {
 	beforeEach(() => {
