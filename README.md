@@ -35,9 +35,10 @@ This rating is returned for both domains and sub domains.
 
 - [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
 - [:dart: &nbsp; Usage](#dart--usage)
-- [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
 - [:policeman: &nbsp; Domain security](#policeman--domain-security)
 - [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
+- [:gear: &nbsp; Managing certificates](#gear--managing-certificates)
+- [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
 - [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
 - [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
 
@@ -214,77 +215,6 @@ A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's 
 ./isolated-test/make-certs.sh my-site.com
 ```
 
-## :whale: &nbsp; Useful Docker commands
-
-### Running containers
-
-```sh
-docker ps
-```
-
-### Container logs
-
-`container-name` can be found using the previous command.
-
-```sh
-# Follow log output run-time
-docker logs -f container-name
-
-# Display last 50 rows
-docker logs -n 50 container-name
-
-# Prefix rows with timestamp
-docker logs -f container-name
-```
-
-These logs are also saved by `winston` as JSON objects to `logs/` folder.
-
-```sh
-# Error logs
-docker exec container-name tail -200f logs/error.log
-
-# All other log level
-docker exec container-name tail -200f logs/combined.log
-```
-
-### List all `Let's Encrypt` domain folders
-
-```sh
-docker exec container-name ls -la /etc/letsencrypt/live
-```
-
-### List secret files for domain `domain.com`
-
-```sh
-docker exec container-name ls -la /etc/letsencrypt/live/domain.com
-```
-
-### Display `Nginx` main configuration
-
-```sh
-docker exec container-name cat /etc/nginx/nginx.conf
-```
-
-### List read-only `Nginx` configuration files provided by `nginx-certbot` image
-
-```sh
-# http/https configuration
-docker exec container-name ls -la /etc/nginx/conf.d
-
-# Secure server
-docker exec container-name ls -la /etc/nginx/secure.d
-```
-
-### Follow `Nginx` logs
-
-```sh
-# Access logs
-docker exec container-name tail -200f /var/log/nginx/access.log
-
-# Error logs
-docker exec container-name tail -200f /var/log/nginx/error.log
-```
-
 ## :policeman: &nbsp; Domain security
 
 _To be written_
@@ -304,10 +234,111 @@ Explain content of
 
 _To be written..._
 
+## :gear: &nbsp; Managing certificates
+
+Certificates can also be accessed from the running container by manually executing the `certbot` command.
+
+More commands can be found in [References](#bookmark--reference-sites).
+
+### List certificates known by `certbot`
+
+List all certificates
+
+```sh
+docker exec nginx-certbot certbot certificates
+```
+
+or just domain.com
+
+```sh
+docker exec nginx-certbot certbot certificates --cert-name domain.com
+```
+
+### Revoke a certificate
+
+```sh
+docker exec nginx-certbot certbot revoke --cert-path /etc/letsencrypt/live/domain.com/fullchain.pem
+```
+
+Then delete all certificate files.
+
+```sh
+docker exec nginx-certbot certbot delete --cert-name domain.com
+```
+
+## :whale: &nbsp; Useful Docker commands
+
+### Running containers
+
+```sh
+docker ps
+```
+
+### Container logs
+
+`nginx-certbot` can be found using the previous command.
+
+```sh
+# Follow log output run-time
+docker logs -f nginx-certbot
+
+# Display last 50 rows
+docker logs -n 50 nginx-certbot
+```
+
+These logs are also saved by `winston` as JSON objects to `/logs` folder.
+
+```sh
+# Error logs
+docker exec nginx-certbot tail -200f /logs/error.log
+
+# All other log level
+docker exec nginx-certbot tail -200f /logs/combined.log
+```
+
+### List all `Let's Encrypt` domain folders
+
+```sh
+docker exec nginx-certbot ls -la /etc/letsencrypt/live
+```
+
+### List secret files for domain `domain.com`
+
+```sh
+docker exec nginx-certbot ls -la /etc/letsencrypt/live/domain.com
+```
+
+### Display `Nginx` main configuration
+
+```sh
+docker exec nginx-certbot cat /etc/nginx/nginx.conf
+```
+
+### List read-only `Nginx` configuration files provided by `nginx-certbot` image
+
+```sh
+# http/https configuration
+docker exec nginx-certbot ls -la /etc/nginx/conf.d
+
+# Secure server
+docker exec nginx-certbot ls -la /etc/nginx/secure.d
+```
+
+### Follow `Nginx` logs
+
+```sh
+# Access logs
+docker exec nginx-certbot tail -200f /var/log/nginx/access.log
+
+# Error logs
+docker exec nginx-certbot tail -200f /var/log/nginx/error.log
+```
+
 ## :bookmark: &nbsp; Reference sites
 
 - [Let's Encrypt](https://letsencrypt.org/)
 - [Certbot](https://certbot.eff.org/)
+- [Managing certificates](https://certbot.eff.org/docs/using.html?highlight=hook#managing-certificates)
 - [GitHub Actions using Docker buildx](https://github.com/marketplace/actions/build-and-push-docker-images#usage)
 
 ## :pray: &nbsp; Acknowledgments
