@@ -24,8 +24,7 @@ export const renewalProcess = (): number => {
 	const domains = getDomains();
 	if (domains.length) {
 		logger.info(`Found ${domains.length} domains to request certificates for`);
-		domains.forEach(async (domain) => {
-			// TODO: Drop extra domains feature and look for server_name in config file instead
+		domains.forEach((domain) => {
 			const status = requestCertificate(domain);
 			if (!status) {
 				exitCode = 2;

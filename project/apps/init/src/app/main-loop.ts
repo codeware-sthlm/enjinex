@@ -13,7 +13,7 @@ import { setIntervalWithoutDelay } from '@tx/util';
 export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
 	logger.info('Starting main loop...');
 
-	const timer = setIntervalWithoutDelay(async () => {
+	const timer = setIntervalWithoutDelay(() => {
 		const status = renewalProcess();
 		if (status > 0) {
 			if (timer) timer.unref();
