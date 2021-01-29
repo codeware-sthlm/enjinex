@@ -10,7 +10,7 @@ import { logger } from '@tx/logger';
  * @returns code 0 when process successful
  */
 export const renewalProcess = (): number => {
-	logger.info('Starting certificate renewal process');
+	logger.info('--- Starting certificate renewal process ---');
 
 	if (!process.env.CERTBOT_EMAIL) {
 		logger.error(
@@ -33,6 +33,7 @@ export const renewalProcess = (): number => {
 		});
 
 		// Let nginx reload its configuration
+		logger.info('Reload Nginx configuration');
 		const status = spawnSync('nginx', ['-s', 'reload']);
 		if (status.error) {
 			logger.error('nginx reload failed');

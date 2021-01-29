@@ -10,6 +10,8 @@ import {
 import { glob } from 'glob';
 import { basename, join } from 'path';
 
+import { logger } from '@tx/logger';
+
 /**
  * Recurse copy all files and folders from a directory to another directory,
  * replacing files and folders with the same name
@@ -81,4 +83,24 @@ export const findFilesContent = (
 			readFileSync(file, { encoding: 'utf-8' }).includes(contentMatch)
 		)
 		.map((file) => (relative ? basename(file, path) : file));
+};
+
+/**
+ * Read file as utf-8 and split data into separate lines
+ *
+ * This is not the most performant solution,
+ * but if the file has limited number of rows it will be fine.
+ * The flow is synchronous which makes it easier to use filter().
+ *
+ * @param filePath Full path to file
+ * @returns an array containing all lines
+ */
+export const readFileToArray = (filePath: string) => {
+	if (!existsSync(filePath)) {
+		logger.warn(`Trying to read unknow file: ${filePath}`);
+		return [];
+	}
+	return readFileSync(filePath, {
+		encoding: 'utf-8'
+	}).split(/\r?\n/);
 };

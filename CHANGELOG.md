@@ -1,3 +1,14 @@
+# 0.4 (2021-01-xx)
+
+Features
+
+- Support multiple domains on a certificate with a common host
+
+Enhancements
+
+- Isolated test terminates after the first loop.
+- Analyze Nginx captured error to see if it's a warning and log accordingly.
+
 # 0.3 (2021-01-24)
 
 Features

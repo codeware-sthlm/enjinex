@@ -17,6 +17,7 @@
 								"onlyDependOnLibsWithTags": [
 									"scope:apps",
 									"scope:config",
+									"scope:environment",
 									"scope:store",
 									"scope:util",
 									"type:app-lib"
@@ -26,6 +27,7 @@
 								"sourceTag": "scope:certbot",
 								"onlyDependOnLibsWithTags": [
 									"scope:certbot",
+									"scope:domain",
 									"scope:logger",
 									"scope:store",
 									"type:setup",

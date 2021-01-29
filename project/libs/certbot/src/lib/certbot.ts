@@ -1,6 +1,7 @@
 import { spawnSync, SpawnSyncReturns } from 'child_process';
 
 import { getConfig, getLetsEncryptServer } from '@tx/config';
+import { Domain } from '@tx/domain';
 import { getEnv } from '@tx/environment';
 import { logger } from '@tx/logger';
 import { getStore } from '@tx/store';
@@ -16,14 +17,11 @@ import { getStore } from '@tx/store';
  * @todo
  * #TODO: Implement support for `optionalDomains`
  */
-export const requestCertificate = (
-	primaryDomain: string,
-	optionalDomains?: string[]
-): boolean => {
-	logger.info(`Request certificate for primary domain ${primaryDomain}...`);
+export const requestCertificate = (domain: Domain): boolean => {
+	logger.info(`Request certificate for primary domain ${domain.primary}...`);
 
 	// Optional domains are provided with `-d` flag before each domain
-	optionalDomains = optionalDomains ?? [];
+	const optionalDomains = domain.optional ?? [];
 	const includeDomainArg = `${
 		optionalDomains.length ? '-d ' : ''
 	}${optionalDomains.join(' -d ')}`;
@@ -53,7 +51,7 @@ export const requestCertificate = (
 		'--server',
 		`${getLetsEncryptServer()}`,
 		'--cert-name',
-		`${primaryDomain}`,
+		`${domain.primary}`,
 		`${includeDomainArg}`,
 		`${forceRenewal}`,
 		`${dryRun}`,
@@ -65,9 +63,9 @@ export const requestCertificate = (
 		// Spawn command syncron and hence request the certificate
 		status = spawnSync(command, args);
 	} else {
-		logger.info('Running in isolated mode, no request will be made!');
+		logger.info('<<< Running in isolated mode, no request will be made! >>>');
 		logger.info('certbot request command:');
-		logger.info(command);
+		logger.info(`${command} ${args.join(' ')}`);
 		status = { error: null } as SpawnSyncReturns<string>;
 	}
 	if (status.error) {

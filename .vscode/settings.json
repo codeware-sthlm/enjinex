@@ -1,3 +1,4 @@
 {
+  "eslint.workingDirectories": ["project"],
   "markdown.extension.toc.levels": "1..2"
 }

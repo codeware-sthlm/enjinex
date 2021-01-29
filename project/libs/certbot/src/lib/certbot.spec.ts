@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 
 import { getConfig } from '@tx/config';
+import { Domain } from '@tx/domain';
 import { logger } from '@tx/logger';
 import { updateStore } from '@tx/store';
 
@@ -11,7 +12,9 @@ interface ExecResponse {
 }
 
 let execCommand: string;
-let domain: string;
+let domain: Domain;
+
+const NO_DOMAIN = { primary: '' } as Domain;
 
 jest.mock('child_process', () => ({
 	spawnSync: jest.fn().mockImplementation(
@@ -31,18 +34,19 @@ logger.error = jest.fn();
 describe('certbot', () => {
 	beforeEach(() => {
 		logger.error = jest.fn();
-		domain = 'my-site.com';
+		domain = { primary: 'my-site.com' };
 		execCommand = '';
 	});
 
 	it('should never have undefined in command', () => {
-		requestCertificate('');
+		requestCertificate(NO_DOMAIN);
 		expect(execCommand.includes('undefined')).toBeFalsy();
 
 		requestCertificate(domain);
 		expect(execCommand.includes('undefined')).toBeFalsy();
 
-		requestCertificate(domain, ['a@b.com']);
+		domain = { ...domain, optional: ['a@b.com'] };
+		requestCertificate(domain);
 		expect(execCommand.includes('undefined')).toBeFalsy();
 	});
 
@@ -52,7 +56,7 @@ describe('certbot', () => {
 	});
 
 	it('should print error and return false for failed request', () => {
-		const status = requestCertificate('');
+		const status = requestCertificate(NO_DOMAIN);
 		expect(logger.error).toHaveBeenCalledTimes(1);
 		expect(status).toBeFalsy();
 	});
@@ -101,20 +105,17 @@ describe('certbot', () => {
 
 	it('should set primary domain', () => {
 		requestCertificate(domain);
-		expect(execCommand.includes(`--cert-name ${domain}`)).toBeTruthy();
+		expect(execCommand.includes(`--cert-name ${domain.primary}`)).toBeTruthy();
 	});
 
 	it('should set optional domains', () => {
-		const optDomains = ['a@a.com', 'b@b.com', 'c@c.com'];
+		requestCertificate(domain);
+		expect(execCommand.includes(' -d ')).toBeFalsy();
 
+		domain = { ...domain, optional: ['a@a.com', 'b@b.com', 'c@c.com'] };
 		requestCertificate(domain);
 		expect(
-			execCommand.includes('-d a@a.com -d b@b.com -d c@c.com')
-		).toBeFalsy();
-
-		requestCertificate(domain, optDomains);
-		expect(
-			execCommand.includes('-d a@a.com -d b@b.com -d c@c.com')
+			execCommand.includes(`${domain.primary} -d a@a.com -d b@b.com -d c@c.com`)
 		).toBeTruthy();
 	});
 
