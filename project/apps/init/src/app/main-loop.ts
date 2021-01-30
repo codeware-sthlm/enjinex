@@ -25,16 +25,19 @@ export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
 
 		// Isolated test only run one loop and then exit after some seconds
 		if (getEnv().ISOLATED === 'Y') {
+			let isolatedSeconds = 60;
 			logger.info(
-				'Successfully run one loop - isolated mode will now exit in...'
+				`Successfully run one loop - isolated mode will now exit in ${isolatedSeconds} seconds...`
 			);
-			let isolatedSeconds = 5;
 			setIntervalWithoutDelay(() => {
 				if (isolatedSeconds === 0) {
 					logger.info('End of test!');
 					process.exit(-1);
 				}
-				logger.info(`${isolatedSeconds--}`);
+				if (isolatedSeconds < 10) {
+					logger.info(`Exit in ${isolatedSeconds}...`);
+				}
+				isolatedSeconds--;
 			}, 1000);
 		}
 		// Normal loop

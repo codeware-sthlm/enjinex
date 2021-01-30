@@ -10,15 +10,14 @@ import { getStore } from '@tx/store';
  * Request a certificate for the primary domain and optional domains.
  * Let certbot descide if an existing certificate needs to be updated.
  *
- * @param primaryDomain Primary domain for certificate
- * @param optionalDomains Domain variants to add to the same certificate
+ * @param domain Domains for certificate
  * @returns `true` when request was successful
- *
- * @todo
- * #TODO: Implement support for `optionalDomains`
  */
 export const requestCertificate = (domain: Domain): boolean => {
 	logger.info(`Request certificate for primary domain ${domain.primary}...`);
+	if (domain.optional?.length) {
+		logger.info(`Apply domains to certificate: ${domain.optional.join(' ')}`);
+	}
 
 	// Optional domains are provided with `-d` flag before each domain
 	const optionalDomains = domain.optional ?? [];
