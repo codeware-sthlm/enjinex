@@ -3,11 +3,17 @@
 Features
 
 - Support multiple domains on a certificate with a common host
+- Send SIGUSR2 to trigger force renewal of certificates
 
 Enhancements
 
-- Isolated test terminates after the first loop.
-- Analyze Nginx captured error to see if it's a warning and log accordingly.
+- Isolated test terminates after the first loop..
+- Analyze Nginx captured error to see if it's a warning and log accordingly
+- Apply gzip compression via `conf.d/gzip.conf`
+
+Misc
+
+- Add to readme how to revoke certificate using `certbot` inside container
 
 # 0.3 (2021-01-24)
 
