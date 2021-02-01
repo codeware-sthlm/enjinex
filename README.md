@@ -2,28 +2,25 @@
 
 ![Continuous integration](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/ci/badge.svg?branch=master)
 
-Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [_certbot_](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
+Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [Certbot](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
 ## :round_pushpin: &nbsp; Features <!-- omit in toc -->
 
-|                                                      |                      |
-| ---------------------------------------------------- | -------------------- |
-| Distributed as Docker image                          | :white_check_mark:   |
-| Built with Node                                      | :white_check_mark:   |
-| Type safe code with TypeScript                       | :white_check_mark:   |
-| Multi-platform support                               | :white_check_mark:   |
-| Node signal handling to prevent zombies              | :white_check_mark:   |
-| Configure multiple domains                           | :white_check_mark:   |
-| Automatic Let's Encrypt certificate renewal          | :white_check_mark:   |
-| Persistent volumes for certificates and Nginx logs   | :white_check_mark:   |
-| Monorepo tooling by [Nx](nx.dev)                     | :white_check_mark:   |
-| Unit tests                                           | :white_check_mark:   |
-| Auto linting                                         | :white_check_mark:   |
-| A+ overall rating at [SSL Labs](https://ssllabs.com) | :white_check_mark:   |
-| Diffie-Hellman parameters                            | :white_check_mark:   |
-| Group domains by a common domain owner               | :white_large_square: |
-| Email renewal events to domain owner                 | :white_large_square: |
-| Compodoc technical docs                              | :white_large_square: |
+|                                                                               |                    |
+| ----------------------------------------------------------------------------- | ------------------ |
+| Distributed as Docker image                                                   | :white_check_mark: |
+| Built with Node                                                               | :white_check_mark: |
+| Type safe code with TypeScript                                                | :white_check_mark: |
+| [Multi-platform support](#desktop_computer--supported-platforms)              | :white_check_mark: |
+| [Node signal handling](#man_shrugging--how-does-this-work) to prevent zombies | :white_check_mark: |
+| Configure [multiple domains](#multiple-domains)                               | :white_check_mark: |
+| Automatic Let's Encrypt certificate renewal                                   | :white_check_mark: |
+| [Persistent volumes](#persistent-volumes) for certificates and logs           | :white_check_mark: |
+| Monorepo tooling by [Nx](nx.dev)                                              | :white_check_mark: |
+| Unit tests                                                                    | :white_check_mark: |
+| Auto linting                                                                  | :white_check_mark: |
+| A+ overall rating at [SSL Labs](https://ssllabs.com)                          | :white_check_mark: |
+| [Diffie-Hellman parameters](#diffie-hellman-parameters)                       | :white_check_mark: |
 
 ### SSL Labs rating
 
@@ -35,10 +32,32 @@ This rating is returned for both domains and sub domains.
 
 - [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
 - [:dart: &nbsp; Usage](#dart--usage)
+  - [Prerequisites](#prerequisites)
+  - [Environment Variables](#environment-variables)
+  - [Persistent Volumes](#persistent-volumes)
+  - [Domain Configurations](#domain-configurations)
+  - [Build and run yourself](#build-and-run-yourself)
+  - [Run with `docker-compose`](#run-with-docker-compose)
+  - [Run isolated tests](#run-isolated-tests)
 - [:policeman: &nbsp; Domain security](#policeman--domain-security)
+  - [Image provided configuration](#image-provided-configuration)
+  - [Diffie-Hellman parameters](#diffie-hellman-parameters)
 - [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
+  - [Node service](#node-service)
+  - [`Nginx` configuration](#nginx-configuration)
+  - [User domain configuration](#user-domain-configuration)
 - [:gear: &nbsp; Managing certificates](#gear--managing-certificates)
+  - [List certificates known by `certbot`](#list-certificates-known-by-certbot)
+  - [Revoke a certificate](#revoke-a-certificate)
+  - [Force renewal of certificates](#force-renewal-of-certificates)
 - [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
+  - [Running containers](#running-containers)
+  - [Container logs](#container-logs)
+  - [List all `Let's Encrypt` domain folders](#list-all-lets-encrypt-domain-folders)
+  - [List secret files for domain `domain.com`](#list-secret-files-for-domain-domaincom)
+  - [Display `Nginx` main configuration](#display-nginx-main-configuration)
+  - [List read-only `Nginx` configuration files provided by `nginx-certbot` image](#list-read-only-nginx-configuration-files-provided-by-nginx-certbot-image)
+  - [Follow `Nginx` logs](#follow-nginx-logs)
 - [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
 - [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
 
@@ -76,8 +95,7 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
   This value is set to `N` by default, which will create real certificates. When this is set to `Y` renewal requests are sent but no changes to the certificate files are made. Use this to test domain setup and prevent any mistakes from creating bad certificates.
 
 - `ISOLATED`  
-  This value is set to `N` by default. When this is set to `Y` the certbot request is never made and status is faked successful. Isolated mode is only valuable during development or test, when your computer isn't setup to receive responses on port 80 and 443. With this option it's still possible to spin up the containter and let the renewal process loop do its thing.  
-   [Read about how to run isolated tests.](###run-isolated-tests)
+  This value is set to `N` by default. When this is set to `Y` the certbot request is never made and status is faked successful. Isolated mode is only valuable during development or test, when your computer isn't setup to receive responses on port 80 and 443. With this option it's still possible to spin up the containter and let the renewal process loop do its thing. [Read about how to run isolated tests.](###run-isolated-tests)
 
 ### Persistent Volumes
 
@@ -119,12 +137,23 @@ server {
 > It's very important that the domain name (e.g. `my-site.io`) match for:
 >
 > - File name `my-site.io.conf`
+>
 > - Configuration property `server_name` to be `my-site.io`
 > - Configuration properties
 >   - `ssl_certificate` to be `/etc/letsencrypt/live/my-site.io/fullchain.pem`
 >   - `ssl_certificate_key` to be `/etc/letsencrypt/live/my-site.io/privkey.pem`
 
-&nbsp;
+#### Multiple domains
+
+It's possible to store several domains in one certificate. To do this the property `server_name` should contain all certificate domains. Important! All domains must be the same host and the host must be the first domain.
+
+```nginx
+server {
+  ...
+  server_name  domain.com www.domain.com sub.domain.com;
+  ...
+}
+```
 
 > :fire: &nbsp; **WARNING**
 >
@@ -199,7 +228,7 @@ Isolated test are used when the computer can not receive reponses from Let's Enc
 
 During these tests no requests are sent to Let's Encrypt but the process is otherwise the real one. By running isolated tests the developer can see the output of the latest changes and get a quick sanity check as a complement to unit tests.
 
-The only problem is the certificates provided by Let's Encrypt and this connection is, stated above, disconnected. Luckily there's a script creating self signed certificate files.
+The only problem is the certificates provided by Let's Encrypt and this connection is, described above, disconnected. Luckily there's a script creating self signed certificate files.
 
 ```sh
 ./isolated-test/make-certs.sh
@@ -217,22 +246,95 @@ A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's 
 
 ## :policeman: &nbsp; Domain security
 
-_To be written_
-
 ### Image provided configuration
 
-Explain content of
+Some configurations are provided by the image. Those files are located in the `nginx_conf.d/secure.d` folder.
 
-- `/etc/nginx/secure.d/header.conf`
-- `/etc/nginx/secure.d/ssl.conf`
+- `header.conf`  
+  This file contains header properties to handle and trying to prevent hacker attacks.
+  More about headers [https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/)
+
+- `location.conf`  
+  This file is not used by default by the image but is available for [reverse proxy location blocks](http://nginx.org/en/docs/http/ngx_http_upstream_module.html).
+  There's an example inside this file.
+
+- `ssl.conf`  
+  This file contains security properties including Diffie-Hellman parameters.
 
 ### Diffie-Hellman parameters
 
-...
+This adds another layer of security. It's best explained by [Wikipedia](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
+
+The default configuration promotes 2048 bits. Higher bit rates could be used but this will lead to reduced performance. It's your choice but 2048 bits is quite hard to crack.
 
 ## :man_shrugging: &nbsp; How does this work?
 
-_To be written..._
+### Node service
+
+Instead of starting a shell script, which is very common, this solution starts a Node service. The reason for this is to have more control over development, mostly regarding unit test, but also to benefit from TypeScript. [TypeScript](https://www.typescriptlang.org/) is a superset of JavaScript and provides type-safe code.
+
+The service is starter within the image, declared in `Dockerfile`.
+
+```dockerfile
+...
+ENTRYPOINT ["node", "/app/dist/apps/init/main.js"]
+...
+```
+
+The `init` application is the main container thread and will always get PID 1. All other processes spawned by `init` will be child processes of `init`. It's therefore important for `init` to setup listeners for `SIG`-signals to prevent the child processes to become zoombies in case `init` gets terminated.
+
+The flow chart for `init` application:
+
+1. Setup listeners to `SIGINT`, `SIGTERM` and `SIGUSR2`.
+
+2. Look for Diffie-Hellman parameters file. Create the file if wasn't found.  
+   Exit `init` if `/etc/nginx/ssl/dhparam.pem` could not be created.
+3. Transfer user domain configurations to `Nginx` configuration folder.  
+   `(local machine repo):conf.d/*.conf` :arrow_right: `(container):/etc/nginx/conf.d/`
+4. Analyze all domain configuration files and make sure all certificate `.pem` files exists. When one is missing the file is renamed with a `.pending` suffix. If we don't do this and start `Nginx` the domain is started in a insecure state.
+5. Test `Nginx` configuration and exit if failed.
+6. Start `Nginx` service by spawning a new child process. Setup listeners to `close`, `stdout`, `stderr`, `disconnect` and `error` events. All events output log data but only the `close` event will sent a exit signal to the parent process.
+7. Start the main loop by creating a interval timer. Default value of timer is 24 hours.
+
+   1. Begin the renewal process for all valid domains.
+
+   2. Exit if environment `CERTBOT_EMAIL` is undefined.
+   3. Get all [valid domains](#valid-domain-checks) from configuration files.
+   4. For each domain send renewal request to Let's Encrypt and let they determine if the certificate needs to be renewed. Otherwise all `.pem` files are left unchanged.
+   5. If the request fails all processes will be terminated. But when successful and the domain was marked by a `.pending` suffix, it will be renamed back to the origin name.
+   6. Reload `Nginx` configuration after all the domains have been processed. This is to ensure that the pending domains gets activated.
+
+8. Wait for the timer to elapse and another renewal process will start.
+
+### `Nginx` configuration
+
+Inside folder `nginx_conf.d` there are some configuration files for `Nginx` that works out of the box. It's not intended for those to be edited but, of course, if you know what you're doing feel free to improve or adjust to your needs.
+
+| Config file    | Local folder             | Container folder       | Responsibility                                               |
+| -------------- | ------------------------ | ---------------------- | ------------------------------------------------------------ |
+| `certbot.conf` | `nginx_conf.d/conf.d/`   | `/etc/nginx/conf.d/`   | Verifying ACME challenges from Let's Encrypty                |
+| `gzip.conf`    | `nginx_conf.d/conf.d/`   | `/etc/nginx/conf.d/`   | Comression (`gzip`) settings                                 |
+| `http.conf`    | `nginx_conf.d/conf.d/`   | `/etc/nginx/conf.d/`   | Port 80 listener; redirects to `certbot.conf` or 443 (https) |
+| `header.conf`  | `nginx_conf.d/secure.d/` | `/etc/nginx/secure.d/` | Header properties for improved security                      |
+| `ssl.conf`     | `nginx_conf.d/secure.d/` | `/etc/nginx/secure.d/` | SSL/TLS properties for strong encryption                     |
+
+### User domain configuration
+
+It's no purpose to run the image if no domains are specified. All the user domains should be located inside `conf.d/` folder. **Not** the one `nginx_conf.d/conf.d/` described obove, but a new folder that needs to be created. Example of a domain configuration is described in [domain configurations](#domain-configurations). A practical use case is also available in `isolated_test/` folder, which is described in [run isolated tests](#run-isolated-tests).
+
+Create as many files as needed where each file will create a certificate. E.g. a certificate for `my-site.io` requires a file named `my-site.io.conf`.
+
+#### Valid domain checks
+
+For a domain to be marked as _valid_ and hence be included in the renewal process, a number of checks needs to pass:
+
+1. The domain [extracted from configuration](#domain-configurations) file must be a valid host.
+
+2. Property `ssl_certificate_key` must exist inside configuration file and the path to the certificate file must [correspond to the domain name](#domain-configurations).
+3. For property `server_name` inside the configuration file
+   1. the primary domain (e.g. `my-site.io`) must be ordered first
+   2. all domains must belong to the same host
+   3. all domains must be unique
 
 ## :gear: &nbsp; Managing certificates
 
@@ -265,6 +367,16 @@ Then delete all certificate files.
 ```sh
 docker exec nginx-certbot certbot delete --cert-name domain.com
 ```
+
+### Force renewal of certificates
+
+This feature uses `SIGUSR2` to notify the container to start a renewal process with `--force-renewal` flag applied.
+
+```sh
+docker kill --signal=USR2 nginx-certbot
+```
+
+But don't do this to often, otherwise the Let's Encrypt limit might be reached.
 
 ## :whale: &nbsp; Useful Docker commands
 

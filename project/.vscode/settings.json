@@ -5,5 +5,6 @@
 	"jest.showCoverageOnLoad": true,
 	"jest.enableInlineErrorMessages": false,
 	"jest.restartJestOnSnapshotUpdate": true,
-	"jest.debugCodeLens.showWhenTestStateIn": ["fail", "pass", "unknown"]
+	"jest.debugCodeLens.showWhenTestStateIn": ["fail", "pass", "unknown"],
+	"markdown.extension.toc.levels": "1..3"
 }

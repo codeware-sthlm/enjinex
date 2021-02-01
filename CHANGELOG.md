@@ -1,4 +1,4 @@
-# 0.4 (2021-01-xx)
+# 0.4 (2021-02-01)
 
 Features
 
@@ -14,6 +14,7 @@ Enhancements
 Misc
 
 - Add to readme how to revoke certificate using `certbot` inside container
+- Much more documentation added to readme
 
 # 0.3 (2021-01-24)
 
