@@ -365,7 +365,7 @@ docker exec nginx-certbot certbot revoke --cert-path /etc/letsencrypt/live/domai
 Then delete all certificate files.
 
 ```sh
-docker exec nginx-certbot certbot delete --cert-name domain.com
+docker exec nginx-certbot certbot delete --cert-name domain.com --non-interactive
 ```
 
 ### Force renewal of certificates
