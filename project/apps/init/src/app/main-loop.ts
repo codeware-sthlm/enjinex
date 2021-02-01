@@ -1,10 +1,11 @@
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { getConfig } from '@tx/config';
+import { getEnv } from '@tx/environment';
 import { logger } from '@tx/logger';
+import { setIntervalWithoutDelay } from '@tx/util';
 
 import { exitAllProcesses } from './exit-process';
 import { renewalProcess } from './renewal-process';
-import { setIntervalWithoutDelay } from '@tx/util';
 
 /**
  * Main app loop for certificate renewal
@@ -13,16 +14,35 @@ import { setIntervalWithoutDelay } from '@tx/util';
 export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
 	logger.info('Starting main loop...');
 
-	const timer = setIntervalWithoutDelay(async () => {
+	const renewalTimer = getConfig().letsEncrypt.renewalTimer;
+
+	const timer = setIntervalWithoutDelay(() => {
 		const status = renewalProcess();
 		if (status > 0) {
 			if (timer) timer.unref();
 			exitAllProcesses('renewal failed', nginx);
 		}
-		logger.info(
-			`Start next renewal process in ${
-				getConfig().letsEncrypt.renewalTimer
-			} seconds...`
-		);
-	}, getConfig().letsEncrypt.renewalTimer * 1000);
+
+		// Isolated test only run one loop and then exit after some seconds
+		if (getEnv().ISOLATED === 'Y') {
+			let isolatedSeconds = 60;
+			logger.info(
+				`Successfully run one loop - isolated mode will now exit in ${isolatedSeconds} seconds...`
+			);
+			setIntervalWithoutDelay(() => {
+				if (isolatedSeconds === 0) {
+					logger.info('End of test!');
+					process.exit(-1);
+				}
+				if (isolatedSeconds < 10) {
+					logger.info(`Exit in ${isolatedSeconds}...`);
+				}
+				isolatedSeconds--;
+			}, 1000);
+		}
+		// Normal loop
+		else {
+			logger.info(`Start next renewal process in ${renewalTimer} seconds...`);
+		}
+	}, renewalTimer * 1000);
 };

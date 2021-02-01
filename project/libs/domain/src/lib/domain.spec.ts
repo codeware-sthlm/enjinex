@@ -3,6 +3,7 @@ import { basename, dirname, join } from 'path';
 import * as fsMock from 'mock-fs';
 
 import { Config } from '@tx/config';
+import { Domain } from '@tx/domain';
 import { logger } from '@tx/logger';
 
 import {
@@ -47,7 +48,7 @@ logger.info = jest.fn();
 describe('domain', () => {
 	afterAll(() => fsMock.restore());
 
-	afterEach(() => {
+	beforeEach(() => {
 		jest.restoreAllMocks();
 	});
 
@@ -60,13 +61,25 @@ describe('domain', () => {
 
 	it('should only find valid domain names matching key file', () => {
 		expect(getDomains()).toEqual([
-			'valid-keys-site.com',
-			'valid-keys-site2.com',
-			'valid-my-site.com'
-		]);
+			{
+				primary: 'multi-domain-ok.com',
+				optional: ['www.multi-domain-ok.com', 'sub.multi-domain-ok.com']
+			},
+			{ primary: 'valid-keys-site.com', optional: [] },
+			{ primary: 'valid-keys-site2.com', optional: [] },
+			{ primary: 'valid-my-site.com', optional: [] }
+		] as Domain[]);
 	});
 
-	it('should not disable valid-keys-site.com', () => {
+	it('should not find failed domains with server_name errors', () => {
+		expect(
+			getDomains().some((domain) =>
+				domain.primary.startsWith('multi-domain-fail')
+			)
+		).toBeFalsy();
+	});
+
+	it('should not disable valid sites', () => {
 		const configFiles = [];
 		jest
 			.spyOn(fs, 'rename')
@@ -78,6 +91,7 @@ describe('domain', () => {
 		disablePendingDomains();
 		expect(fs.rename).toHaveBeenCalledTimes(2);
 		expect(configFiles.length).toBe(2);
+		expect(configFiles.includes('multi-domain-ok.com')).toBeFalsy();
 		expect(configFiles.includes('valid-keys-site.com.conf')).toBeFalsy();
 	});
 
@@ -90,7 +104,7 @@ describe('domain', () => {
 				configFiles.push(basename(newPath.toString()));
 			});
 
-		enableDomain('valid-keys-site2.com');
+		enableDomain({ primary: 'valid-keys-site2.com' });
 		expect(fs.rename).toHaveBeenCalledTimes(1);
 		expect(configFiles).toEqual(['valid-keys-site2.com.conf']);
 	});
@@ -103,11 +117,7 @@ describe('domain', () => {
 				//noop
 			});
 
-		enableDomain('valid-keys-site.com');
+		enableDomain({ primary: 'valid-keys-site.com' });
 		expect(fs.rename).toHaveBeenCalledTimes(0);
 	});
-
-	it.todo('should disable domain that are missing dhparam.pem');
-	it.todo('should not enale domain that are missing dhparam.pem');
-	it.todo('should emable pending domain that have dhparam.pem');
 });

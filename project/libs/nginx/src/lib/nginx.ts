@@ -23,8 +23,10 @@ export const startNginxAndSetupListeners = () => {
 	});
 
 	// Just log
-	nginx.stdout.on('data', (data) => logger.info(`${data}`));
-	nginx.stderr.on('data', (data) => logger.error(`${data}`));
+	nginx.stdout.on('data', (data: string) => logger.info(`${data}`));
+	nginx.stderr.on('data', (data: string) =>
+		data.includes('[warn]') ? logger.warn(`${data}`) : logger.error(`${data}`)
+	);
 	nginx.on('disconnect', () => logger.info(`Nginx disconnected`));
 	nginx.on('error', (err) =>
 		logger.error(`Nginx received error: ${err.message}`)

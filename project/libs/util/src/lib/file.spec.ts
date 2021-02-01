@@ -2,7 +2,14 @@ import { existsSync, mkdirSync, copyFileSync } from 'fs';
 import { basename, join } from 'path';
 import * as fsMock from 'mock-fs';
 
-import { copyFolderSync, findFilesFlat, findFilesContent } from './file';
+import { logger } from '@tx/logger';
+
+import {
+	copyFolderSync,
+	findFilesFlat,
+	findFilesContent,
+	readFileToArray
+} from './file';
 
 // Mock a filesystem
 fsMock({
@@ -15,51 +22,84 @@ fsMock({
 	},
 	dest: {
 		'destfile.txt': ''
+	},
+	readfolder: {
+		'norows.txt': '',
+		'2rowsWithoutTrailingEmptyLine.txt': 'row1\r\nrow2',
+		'2rowsWithTrailingEmptyLine.txt': 'row1\r\nrow2\r\n'
 	}
 });
 
+logger.warn = jest.fn();
+
 describe('file', () => {
-	describe('copyFolderSync', () => {
+	describe('using mockFs', () => {
 		afterAll(() => fsMock.restore());
 
-		it('should copy files with subfolder to existing destination', () => {
-			copyFolderSync('src', 'dest');
-			expect(existsSync('dest/destfile.txt')).toBeTruthy();
-			expect(existsSync('dest/srcfile1.txt')).toBeTruthy();
-			expect(existsSync('dest/srcfile2.txt')).toBeTruthy();
-			expect(existsSync('dest/subfolder')).toBeTruthy();
-			expect(existsSync('dest/subfolder/subfile.txt')).toBeTruthy();
+		describe('copyFolderSync', () => {
+			it('should copy files with subfolder to existing destination', () => {
+				copyFolderSync('src', 'dest');
+				expect(existsSync('dest/destfile.txt')).toBeTruthy();
+				expect(existsSync('dest/srcfile1.txt')).toBeTruthy();
+				expect(existsSync('dest/srcfile2.txt')).toBeTruthy();
+				expect(existsSync('dest/subfolder')).toBeTruthy();
+				expect(existsSync('dest/subfolder/subfile.txt')).toBeTruthy();
+			});
+
+			it('should copy files with subfolder to new destination', () => {
+				copyFolderSync('src', 'new1');
+				expect(existsSync('new1/destfile.txt')).toBeFalsy();
+				expect(existsSync('new1/srcfile1.txt')).toBeTruthy();
+				expect(existsSync('new1/srcfile2.txt')).toBeTruthy();
+				expect(existsSync('new1/subfolder')).toBeTruthy();
+				expect(existsSync('new1/subfolder/subfile.txt')).toBeTruthy();
+			});
+
+			it('should copy files and overwrite existing files and folders', () => {
+				mkdirSync('new2');
+				copyFileSync(join('src', 'srcfile1.txt'), join('new2', 'srcfile1.txt'));
+				expect(existsSync('new2/srcfile1.txt')).toBeTruthy();
+
+				copyFolderSync('new2', 'src');
+				expect(existsSync('src/srcfile1.txt')).toBeTruthy();
+				expect(existsSync('src/srcfile2.txt')).toBeTruthy();
+				expect(existsSync('src/subfolder')).toBeTruthy();
+				expect(existsSync('src/subfolder/subfile.txt')).toBeTruthy();
+			});
+
+			it('should handle non-existing source folder', () => {
+				let error;
+				try {
+					copyFolderSync('does-not-exist', 'src');
+				} catch (err) {
+					error = err;
+				}
+				expect(error?.code).not.toEqual('ENOENT');
+			});
 		});
 
-		it('should copy files with subfolder to new destination', () => {
-			copyFolderSync('src', 'new1');
-			expect(existsSync('new1/destfile.txt')).toBeFalsy();
-			expect(existsSync('new1/srcfile1.txt')).toBeTruthy();
-			expect(existsSync('new1/srcfile2.txt')).toBeTruthy();
-			expect(existsSync('new1/subfolder')).toBeTruthy();
-			expect(existsSync('new1/subfolder/subfile.txt')).toBeTruthy();
-		});
+		describe('readFileToArray', () => {
+			afterAll(() => fsMock.restore());
 
-		it('should copy files and overwrite existing files and folders', () => {
-			mkdirSync('new2');
-			copyFileSync(join('src', 'srcfile1.txt'), join('new2', 'srcfile1.txt'));
-			expect(existsSync('new2/srcfile1.txt')).toBeTruthy();
+			it('should return array with single empty string for empty file', () => {
+				expect(readFileToArray('readfolder/norows.txt')).toEqual(['']);
+			});
 
-			copyFolderSync('new2', 'src');
-			expect(existsSync('src/srcfile1.txt')).toBeTruthy();
-			expect(existsSync('src/srcfile2.txt')).toBeTruthy();
-			expect(existsSync('src/subfolder')).toBeTruthy();
-			expect(existsSync('src/subfolder/subfile.txt')).toBeTruthy();
-		});
+			it('should return array with 2 rows reading file wo trailing empty line', () => {
+				expect(
+					readFileToArray('readfolder/2rowsWithoutTrailingEmptyLine.txt')
+				).toEqual(['row1', 'row2']);
+			});
 
-		it('should handle non-existing source folder', () => {
-			let error;
-			try {
-				copyFolderSync('does-not-exist', 'src');
-			} catch (err) {
-				error = err;
-			}
-			expect(error?.code).not.toEqual('ENOENT');
+			it('should return array with 3 rows reading file with trailing empty line', () => {
+				expect(
+					readFileToArray('readfolder/2rowsWithTrailingEmptyLine.txt')
+				).toEqual(['row1', 'row2', '']);
+			});
+
+			it('should return empty array when file not found', () => {
+				expect(readFileToArray('readfolder/unknown.txt')).toEqual([]);
+			});
 		});
 	});
 
