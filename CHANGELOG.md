@@ -1,3 +1,13 @@
+# 0.5 (2021-02-xx)
+
+Misc
+
+- Update docs about certbot renewal
+
+Bug fix
+
+- No need for `text/html` in `gzip.conf`
+
 # 0.4 (2021-02-01)
 
 Features
