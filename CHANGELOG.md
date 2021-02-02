@@ -1,13 +1,21 @@
 # 0.5 (2021-02-xx)
 
+Enhancements
+
+- Add persistent volume for Let's Encrypt logs named `letsecrypt_logs`
+
 Misc
 
 - Update docs about certbot renewal
+- Rename Let's Encrypt persistent certificates volume to `letsencrypt_cert`
+- Rename nginx persistent logs volume to `nginx_logs`
 
 Bug fix
 
 - No need for `text/html` in `gzip.conf`
 - All domains must be defined after `-d` flag, not just the optional
+- `localhost` was not a valid host which made isolated test fail
+- Pending domains were never renamed with suffix `.pending`
 
 # 0.4 (2021-02-01)
 

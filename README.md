@@ -99,17 +99,25 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
 ### Persistent Volumes
 
-- `/etc/letsencrypt`: Generated domain certificates stored in domain specific folders.
+- `/etc/letsencrypt`  
+  Generated domain certificates stored in domain specific folders.
 
-  _Stored as Docker volume: `letsencrypt`_
+  _Stored as Docker volume: `letsencrypt_cert`_
 
-- `/etc/nginx/ssl`: Common certificates for all domains, e.g. Diffie-Hellman parameters file.
+- `/etc/nginx/ssl`  
+  Common certificates for all domains, e.g. Diffie-Hellman parameters file.
 
   _Stored as Docker volume: `ssl`_
 
-- `/var/log/nginx`: Nginx access and error logs.
+- `/var/log/letsencrypt`  
+  Let's Encrypt logs.
 
-  _Stored as Docker volume: `nginx`_
+  _Stored as Docker volume: `letsencrypt_logs`_
+
+- `/var/log/nginx`  
+  Nginx access and error logs.
+
+  _Stored as Docker volume: `nginx_logs`_
 
 ### Domain Configurations
 
@@ -118,7 +126,7 @@ Every domain to request certificates for must be stored in folder `conf.d`. The 
 ```nginx
 server {
   listen              443 ssl default_server;
-  server_name         domain.com;
+  server_name         domain.com www.domain.com;
 
   ssl_certificate     /etc/letsencrypt/live/domain.com/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/domain.com/privkey.pem;
@@ -205,13 +213,15 @@ services:
       - '443:443'
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
-      - letsencrypt:/etc/letsencrypt
-      - nginx:/var/log/nginx
+      - letsencrypt_cert:/etc/letsencrypt
+      - letsencrypt_logs:/var/log/letsencrypt
+      - nginx_logs:/var/log/nginx
       - ssl:/etc/nginx/ssl
 
 volumes:
-  letsencrypt:
-  nginx:
+  letsencrypt_cert:
+  letsencrypt_logs:
+  nginx_logs:
   ssl:
 ```
 
@@ -238,7 +248,7 @@ The only problem is the certificates provided by Let's Encrypt and this connecti
 docker-compose up
 ```
 
-A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's nothing stopping from creating more fake domains. Just create certificates from those domains as well, e.g. `my-site.com`.
+A fake domain `localhost` is prepared in folder `isolated-test` but there's nothing stopping from creating more fake domains. Just create certificates from those domains as well, e.g. `my-site.com`.
 
 ```sh
 ./isolated-test/make-certs.sh my-site.com
@@ -328,7 +338,8 @@ Create as many files as needed where each file will create a certificate. E.g. a
 
 For a domain to be marked as _valid_ and hence be included in the renewal process, a number of checks needs to pass:
 
-1. The domain [extracted from configuration](#domain-configurations) file must be a valid host.
+1. The domain [extracted from configuration](#domain-configurations) file must be a valid host.  
+   It's also possible to use `localhost`, but that is actually only useful when running isolated test.
 
 2. Property `ssl_certificate_key` must exist inside configuration file and the path to the certificate file must [correspond to the domain name](#domain-configurations).
 3. For property `server_name` inside the configuration file
