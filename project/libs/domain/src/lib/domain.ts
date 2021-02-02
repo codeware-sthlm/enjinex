@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, rename } from 'fs';
+import { readFileSync, existsSync, rename, renameSync } from 'fs';
 import { basename } from 'path';
 import validator from 'validator';
 import { getConfig } from '@tx/config';
@@ -70,14 +70,12 @@ export const disablePendingDomains = (): number => {
 	findFilesFlat(getConfig().nginx.configPath, '*.conf').forEach((filePath) => {
 		if (!allConfigKeyFilesExists(filePath)) {
 			logger.info(`Key files missing for ${filePath}, disable domain`);
-			rename(filePath, getPendingFilePath(filePath), (err) => {
-				if (err) {
-					logger.warn(`Renaming file failed with code ${err.code}`);
-					logger.warn(err.message);
-				} else {
-					disabledDomains++;
-				}
-			});
+			try {
+				renameSync(filePath, getPendingFilePath(filePath));
+				disabledDomains++;
+			} catch {
+				logger.warn(`Failed renaming file`);
+			}
 		}
 	});
 	return disabledDomains;
@@ -155,7 +153,9 @@ export const getDomains = (): Domain[] => {
 				const domain = extractPrimaryDomainFromFileName(filePath);
 
 				// Only handle valid domains (i.e. user domain config files)
-				if (!validator.isFQDN(domain)) {
+				if (domain === 'localhost') {
+					logger.warn('localhost is accepted but reconsider the use case');
+				} else if (!validator.isFQDN(domain)) {
 					logger.debug(`Skip ${domain}: not a valid domain`);
 					return false;
 				}

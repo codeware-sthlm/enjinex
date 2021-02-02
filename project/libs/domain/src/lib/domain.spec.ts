@@ -56,11 +56,13 @@ describe('domain', () => {
 		transferUserConfig();
 		expect(fs.existsSync('config.d/valid-my-site.com.conf')).toBeTruthy();
 		expect(fs.existsSync('config.d/domain.com.conf')).toBeTruthy();
+		expect(fs.existsSync('config.d/localhost.conf')).toBeTruthy();
 		expect(fs.existsSync('config.d/site.com.conf')).toBeTruthy();
 	});
 
 	it('should only find valid domain names matching key file', () => {
 		expect(getDomains()).toEqual([
+			{ primary: 'localhost', optional: ['sub.localhost'] },
 			{
 				primary: 'multi-domain-ok.com',
 				optional: ['www.multi-domain-ok.com', 'sub.multi-domain-ok.com']
@@ -82,15 +84,16 @@ describe('domain', () => {
 	it('should not disable valid sites', () => {
 		const configFiles = [];
 		jest
-			.spyOn(fs, 'rename')
+			.spyOn(fs, 'renameSync')
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			.mockImplementation((oldPath, newPath, callback) => {
+			.mockImplementation((oldPath, newPath) => {
 				configFiles.push(basename(oldPath.toString()));
 			});
 
 		disablePendingDomains();
-		expect(fs.rename).toHaveBeenCalledTimes(2);
+		expect(fs.renameSync).toHaveBeenCalledTimes(2);
 		expect(configFiles.length).toBe(2);
+		expect(configFiles.includes('localhost')).toBeFalsy();
 		expect(configFiles.includes('multi-domain-ok.com')).toBeFalsy();
 		expect(configFiles.includes('valid-keys-site.com.conf')).toBeFalsy();
 	});
