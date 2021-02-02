@@ -4,6 +4,7 @@ import { getConfig } from '@tx/config';
 import { Domain } from '@tx/domain';
 import { logger } from '@tx/logger';
 import { updateStore } from '@tx/store';
+import { replaceAll } from '@tx/util';
 
 import { requestCertificate } from './certbot';
 
@@ -103,19 +104,31 @@ describe('certbot', () => {
 		).toBeTruthy();
 	});
 
-	it('should set primary domain', () => {
+	it('should set cert-name to primary domain', () => {
 		requestCertificate(domain);
 		expect(execCommand.includes(`--cert-name ${domain.primary}`)).toBeTruthy();
 	});
 
-	it('should set optional domains', () => {
+	it('should have primary domain only', () => {
 		requestCertificate(domain);
-		expect(execCommand.includes(' -d ')).toBeFalsy();
+		expect(
+			execCommand.includes(`--cert-name ${domain.primary} -d ${domain.primary}`)
+		).toBeTruthy();
 
+		expect(
+			replaceAll(execCommand, ' ', '').includes(
+				`--cert-name${domain.primary}-d${domain.primary}--debug`
+			)
+		).toBeTruthy();
+	});
+
+	it('should have multiple domains', () => {
 		domain = { ...domain, optional: ['a@a.com', 'b@b.com', 'c@c.com'] };
 		requestCertificate(domain);
 		expect(
-			execCommand.includes(`${domain.primary} -d a@a.com -d b@b.com -d c@c.com`)
+			execCommand.includes(
+				`--cert-name ${domain.primary} -d ${domain.primary},a@a.com,b@b.com,c@c.com`
+			)
 		).toBeTruthy();
 	});
 

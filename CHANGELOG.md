@@ -7,6 +7,7 @@ Misc
 Bug fix
 
 - No need for `text/html` in `gzip.conf`
+- All domains must be defined after `-d` flag, not just the optional
 
 # 0.4 (2021-02-01)
 

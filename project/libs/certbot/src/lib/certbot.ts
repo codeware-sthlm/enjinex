@@ -16,14 +16,11 @@ import { getStore } from '@tx/store';
 export const requestCertificate = (domain: Domain): boolean => {
 	logger.info(`Request certificate for primary domain ${domain.primary}...`);
 	if (domain.optional?.length) {
-		logger.info(`Apply domains to certificate: ${domain.optional.join(' ')}`);
+		logger.info(`More domains to append: ${domain.optional.join(' ')}`);
 	}
 
-	// Optional domains are provided with `-d` flag before each domain
-	const optionalDomains = domain.optional ?? [];
-	const includeDomainArg = `${
-		optionalDomains.length ? '-d ' : ''
-	}${optionalDomains.join(' -d ')}`;
+	// All domains are provided as comma separated list with `-d` flag
+	const domainArr = [...[domain.primary], ...(domain.optional ?? [])];
 
 	const forceRenewal = getStore().forceRenew ? '--force-renewal' : '';
 	const dryRun = getEnv().DRY_RUN === 'Y' ? '--dry-run' : '';
@@ -51,7 +48,8 @@ export const requestCertificate = (domain: Domain): boolean => {
 		`${getLetsEncryptServer()}`,
 		'--cert-name',
 		`${domain.primary}`,
-		`${includeDomainArg}`,
+		'-d',
+		`${domainArr.join(',')}`,
 		`${forceRenewal}`,
 		`${dryRun}`,
 		'--debug'
