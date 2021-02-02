@@ -8,7 +8,7 @@ services:
     container_name: nginx-certbot
     restart: 'no'
     environment:
-      CERTBOT_EMAIL: me@localhost.dev
+      CERTBOT_EMAIL: me@localhost
       ISOLATED: 'Y'
       NODE_ENV: 'test'
     ports:
@@ -20,8 +20,3 @@ services:
       - ./isolated-test/ssl:/etc/nginx/ssl
       - ./isolated-test/nginx:/var/log/nginx
       - ./isolated-test/logs:/logs
-
-volumes:
-  letsencrypt:
-  nginx:
-  ssl:
