@@ -39,6 +39,7 @@ This rating is returned for both domains and sub domains.
   - [Build and run yourself](#build-and-run-yourself)
   - [Run with `docker-compose`](#run-with-docker-compose)
   - [Run isolated tests](#run-isolated-tests)
+  - [Run test with expected failure](#run-test-with-expected-failure)
 - [:policeman: &nbsp; Domain security](#policeman--domain-security)
   - [Image provided configuration](#image-provided-configuration)
   - [Diffie-Hellman parameters](#diffie-hellman-parameters)
@@ -252,6 +253,16 @@ A fake domain `localhost` is prepared in folder `isolated-test` but there's noth
 
 ```sh
 ./isolated-test/make-certs.sh my-site.com
+```
+
+### Run test with expected failure
+
+This test is a variant of isolated test with the same configuration. The only difference is that the renewal request is actually sent to Let's Encrypt but with `--dry-run` flag applied. However we know that `localhost` isn't a fully qualified domain and hence the request will fail.
+
+It's an educational example how `stderr` from a spawned `certbot` command may look like.
+
+```sh
+docker-compose -f docker-compose.dry-run.yml up
 ```
 
 ## :policeman: &nbsp; Domain security

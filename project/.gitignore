@@ -39,9 +39,9 @@ testem.log
 Thumbs.db
 
 # Project isolated test
-isolated-test/letsencrypt
-isolated-test/logs
-isolated-test/nginx
+isolated-test/letsencrypt*
+isolated-test/logs*
+isolated-test/nginx*
 
 # DO NOT COMMIT
 logs
