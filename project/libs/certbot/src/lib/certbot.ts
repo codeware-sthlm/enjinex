@@ -1,4 +1,4 @@
-import { spawnSync, SpawnSyncReturns } from 'child_process';
+import { spawnSync } from 'child_process';
 
 import { getConfig, getLetsEncryptServer } from '@tx/config';
 import { Domain } from '@tx/domain';
@@ -51,26 +51,41 @@ export const requestCertificate = (domain: Domain): boolean => {
 		'-d',
 		`${domainArr.join(',')}`,
 		`${forceRenewal}`,
-		`${dryRun}`,
-		'--debug'
-	];
+		`${dryRun}`
+	].filter((arg) => !!arg);
 
-	let status: SpawnSyncReturns<string>;
-	if (!isolated) {
-		// Spawn command syncron and hence request the certificate
-		status = spawnSync(command, args);
-	} else {
+	// Log command
+	logger.info(`${command} ${args.join(' ')}`);
+
+	// Isolated mode makes no request
+	if (isolated) {
 		logger.info('<<< Running in isolated mode, no request will be made! >>>');
-		logger.info('certbot request command:');
-		logger.info(`${command} ${args.join(' ')}`);
-		status = { error: null } as SpawnSyncReturns<string>;
-	}
-	if (status.error) {
-		logger.error(`Failed with message '${status.error.message}'`);
-	} else {
-		logger.info('Renewal done');
+		return true;
 	}
 
-	// Return false when we have an error
-	return !status.error;
+	// Spawn command syncron and request the certificate
+	try {
+		const output = spawnSync(command, args, { encoding: 'utf8' });
+		logger.info(`Started certbot request with PID ${output.pid}`);
+
+		// Check for command errors
+		if (output.stderr.trim()) {
+			logger.error(`Error status code ${output.status}`);
+			logger.error(output.stderr.trim());
+			return false;
+		}
+
+		// Request successful
+		logger.info(`Returned status code ${output.status}`);
+		if (output.stdout.trim()) {
+			logger.info(output.stdout.trim());
+		}
+		logger.info('Renewal done');
+	} catch (error) {
+		logger.error(error);
+		return false;
+	}
+
+	// Errors have been returned false in previous stages
+	return true;
 };
