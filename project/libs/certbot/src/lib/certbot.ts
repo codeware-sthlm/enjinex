@@ -68,19 +68,19 @@ export const requestCertificate = (domain: Domain): boolean => {
 		const output = spawnSync(command, args, { encoding: 'utf8' });
 		logger.info(`Started certbot request with PID ${output.pid}`);
 
-		// Check for command errors
-		if (output.stderr.trim()) {
-			logger.error(`Error status code ${output.status}`);
+		// Check for renewal attempt failed
+		if (output.status === 1) {
+			logger.error(`Status code ${output.status}`);
 			logger.error(output.stderr.trim());
 			return false;
 		}
 
 		// Request successful
-		logger.info(`Returned status code ${output.status}`);
-		if (output.stdout.trim()) {
-			logger.info(output.stdout.trim());
+		logger.info(`Status code ${output.status}`);
+		if (output.stderr.trim()) {
+			logger.info(output.stderr.trim());
 		}
-		logger.info('Renewal done');
+		logger.info('Renewal attempt done');
 	} catch (error) {
 		logger.error(error);
 		return false;

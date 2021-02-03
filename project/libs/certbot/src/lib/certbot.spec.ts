@@ -20,7 +20,7 @@ let execCommand: string;
 let domain: Domain;
 
 const NO_DOMAIN = { primary: '' } as Domain;
-const FAKE_STDERR = { primary: 'fake-stderr.nu' } as Domain;
+const FAKE_FAILURE = { primary: 'fake-failure.nu' } as Domain;
 const FAKE_CATCH = { primary: 'fake-catch.nu' } as Domain;
 
 jest.mock('child_process', () => ({
@@ -31,19 +31,19 @@ jest.mock('child_process', () => ({
 		execCommand = `${command} ${args.join(' ')}`;
 		if (execArgs.includes(FAKE_CATCH.primary)) {
 			throw new Error('invalid command');
-		} else if (execArgs.includes(FAKE_STDERR.primary)) {
+		} else if (execArgs.includes(FAKE_FAILURE.primary)) {
 			return {
 				pid: 99,
-				status: 2,
+				status: 1,
 				stdout: '',
 				stderr: 'certbot error'
 			};
 		} else {
 			return {
 				pid: 99,
-				status: 1,
-				stdout: 'Renewal request was successful',
-				stderr: ''
+				status: 0,
+				stdout: '',
+				stderr: 'Renewal request was successful'
 			};
 		}
 	})
@@ -89,7 +89,7 @@ describe('certbot', () => {
 	});
 
 	it('should print error and return false for certbot error', () => {
-		const status = requestCertificate(FAKE_STDERR);
+		const status = requestCertificate(FAKE_FAILURE);
 		expect(logger.error).toHaveBeenLastCalledWith('certbot error');
 		expect(status).toBeFalsy();
 	});
