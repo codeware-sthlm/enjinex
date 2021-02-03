@@ -60,6 +60,7 @@ COPY --from=builder /app/node_modules /app/node_modules
 # Setup persistent volumes
 VOLUME /etc/letsencrypt
 VOLUME /etc/nginx/ssl
+VOLUME /var/log/letsencrypt
 VOLUME /var/log/nginx
 
 EXPOSE 80

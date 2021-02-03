@@ -3,6 +3,7 @@ version: '3.8'
 services:
   nginx:
     build: .
+    container_name: nginx-certbot
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@domain.com
@@ -11,9 +12,13 @@ services:
       - 443:443
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
-      - letsencrypt:/etc/letsencrypt
-      - nginx:/var/log/nginx
+      - letsencrypt_cert:/etc/letsencrypt
+      - letsencrypt_logs:/var/log/letsencrypt
+      - nginx_logs:/var/log/nginx
+      - ssl:/etc/nginx/ssl
 
 volumes:
-  letsencrypt:
-  nginx:
+  letsencrypt_cert:
+  letsencrypt_logs:
+  nginx_logs:
+  ssl:

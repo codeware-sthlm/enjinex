@@ -1,4 +1,4 @@
-import { spawnSync, SpawnSyncReturns } from 'child_process';
+import { spawnSync } from 'child_process';
 
 import { getConfig, getLetsEncryptServer } from '@tx/config';
 import { Domain } from '@tx/domain';
@@ -16,14 +16,11 @@ import { getStore } from '@tx/store';
 export const requestCertificate = (domain: Domain): boolean => {
 	logger.info(`Request certificate for primary domain ${domain.primary}...`);
 	if (domain.optional?.length) {
-		logger.info(`Apply domains to certificate: ${domain.optional.join(' ')}`);
+		logger.info(`More domains to append: ${domain.optional.join(' ')}`);
 	}
 
-	// Optional domains are provided with `-d` flag before each domain
-	const optionalDomains = domain.optional ?? [];
-	const includeDomainArg = `${
-		optionalDomains.length ? '-d ' : ''
-	}${optionalDomains.join(' -d ')}`;
+	// All domains are provided as comma separated list with `-d` flag
+	const domainArr = [...[domain.primary], ...(domain.optional ?? [])];
 
 	const forceRenewal = getStore().forceRenew ? '--force-renewal' : '';
 	const dryRun = getEnv().DRY_RUN === 'Y' ? '--dry-run' : '';
@@ -51,28 +48,44 @@ export const requestCertificate = (domain: Domain): boolean => {
 		`${getLetsEncryptServer()}`,
 		'--cert-name',
 		`${domain.primary}`,
-		`${includeDomainArg}`,
+		'-d',
+		`${domainArr.join(',')}`,
 		`${forceRenewal}`,
-		`${dryRun}`,
-		'--debug'
-	];
+		`${dryRun}`
+	].filter((arg) => !!arg);
 
-	let status: SpawnSyncReturns<string>;
-	if (!isolated) {
-		// Spawn command syncron and hence request the certificate
-		status = spawnSync(command, args);
-	} else {
+	// Log command
+	logger.info(`${command} ${args.join(' ')}`);
+
+	// Isolated mode makes no request
+	if (isolated) {
 		logger.info('<<< Running in isolated mode, no request will be made! >>>');
-		logger.info('certbot request command:');
-		logger.info(`${command} ${args.join(' ')}`);
-		status = { error: null } as SpawnSyncReturns<string>;
-	}
-	if (status.error) {
-		logger.error(`Failed with message '${status.error.message}'`);
-	} else {
-		logger.info('Renewal done');
+		return true;
 	}
 
-	// Return false when we have an error
-	return !status.error;
+	// Spawn command syncron and request the certificate
+	try {
+		const output = spawnSync(command, args, { encoding: 'utf8' });
+		logger.info(`Started certbot request with PID ${output.pid}`);
+
+		// Check for renewal attempt failed
+		if (output.status === 1) {
+			logger.error(`Status code ${output.status}`);
+			logger.error(output.stderr.trim());
+			return false;
+		}
+
+		// Request successful
+		logger.info(`Status code ${output.status}`);
+		if (output.stderr.trim()) {
+			logger.info(output.stderr.trim());
+		}
+		logger.info('Renewal attempt done');
+	} catch (error) {
+		logger.error(error);
+		return false;
+	}
+
+	// Errors have been returned false in previous stages
+	return true;
 };

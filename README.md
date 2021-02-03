@@ -39,6 +39,7 @@ This rating is returned for both domains and sub domains.
   - [Build and run yourself](#build-and-run-yourself)
   - [Run with `docker-compose`](#run-with-docker-compose)
   - [Run isolated tests](#run-isolated-tests)
+  - [Run test with expected failure](#run-test-with-expected-failure)
 - [:policeman: &nbsp; Domain security](#policeman--domain-security)
   - [Image provided configuration](#image-provided-configuration)
   - [Diffie-Hellman parameters](#diffie-hellman-parameters)
@@ -99,17 +100,25 @@ Make sure that your domain name is entered correctly and the DNS A/AAAA record(s
 
 ### Persistent Volumes
 
-- `/etc/letsencrypt`: Generated domain certificates stored in domain specific folders.
+- `/etc/letsencrypt`  
+  Generated domain certificates stored in domain specific folders.
 
-  _Stored as Docker volume: `letsencrypt`_
+  _Stored as Docker volume: `letsencrypt_cert`_
 
-- `/etc/nginx/ssl`: Common certificates for all domains, e.g. Diffie-Hellman parameters file.
+- `/etc/nginx/ssl`  
+  Common certificates for all domains, e.g. Diffie-Hellman parameters file.
 
   _Stored as Docker volume: `ssl`_
 
-- `/var/log/nginx`: Nginx access and error logs.
+- `/var/log/letsencrypt`  
+  Let's Encrypt logs.
 
-  _Stored as Docker volume: `nginx`_
+  _Stored as Docker volume: `letsencrypt_logs`_
+
+- `/var/log/nginx`  
+  Nginx access and error logs.
+
+  _Stored as Docker volume: `nginx_logs`_
 
 ### Domain Configurations
 
@@ -118,7 +127,7 @@ Every domain to request certificates for must be stored in folder `conf.d`. The 
 ```nginx
 server {
   listen              443 ssl default_server;
-  server_name         domain.com;
+  server_name         domain.com www.domain.com;
 
   ssl_certificate     /etc/letsencrypt/live/domain.com/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/domain.com/privkey.pem;
@@ -205,13 +214,15 @@ services:
       - '443:443'
     volumes:
       - ./conf.d:/etc/nginx/user.conf.d:ro
-      - letsencrypt:/etc/letsencrypt
-      - nginx:/var/log/nginx
+      - letsencrypt_cert:/etc/letsencrypt
+      - letsencrypt_logs:/var/log/letsencrypt
+      - nginx_logs:/var/log/nginx
       - ssl:/etc/nginx/ssl
 
 volumes:
-  letsencrypt:
-  nginx:
+  letsencrypt_cert:
+  letsencrypt_logs:
+  nginx_logs:
   ssl:
 ```
 
@@ -238,10 +249,20 @@ The only problem is the certificates provided by Let's Encrypt and this connecti
 docker-compose up
 ```
 
-A fake domain `localhost.dev` is prepared in folder `isolated-test` but there's nothing stopping from creating more fake domains. Just create certificates from those domains as well, e.g. `my-site.com`.
+A fake domain `localhost` is prepared in folder `isolated-test` but there's nothing stopping from creating more fake domains. Just create certificates from those domains as well, e.g. `my-site.com`.
 
 ```sh
 ./isolated-test/make-certs.sh my-site.com
+```
+
+### Run test with expected failure
+
+This test is a variant of isolated test with the same configuration. The only difference is that the renewal request is actually sent to Let's Encrypt but with `--dry-run` flag applied. However we know that `localhost` isn't a fully qualified domain and hence the request will fail.
+
+It's an educational example how `stderr` from a spawned `certbot` command may look like.
+
+```sh
+docker-compose -f docker-compose.dry-run.yml up
 ```
 
 ## :policeman: &nbsp; Domain security
@@ -328,7 +349,8 @@ Create as many files as needed where each file will create a certificate. E.g. a
 
 For a domain to be marked as _valid_ and hence be included in the renewal process, a number of checks needs to pass:
 
-1. The domain [extracted from configuration](#domain-configurations) file must be a valid host.
+1. The domain [extracted from configuration](#domain-configurations) file must be a valid host.  
+   It's also possible to use `localhost`, but that is actually only useful when running isolated test.
 
 2. Property `ssl_certificate_key` must exist inside configuration file and the path to the certificate file must [correspond to the domain name](#domain-configurations).
 3. For property `server_name` inside the configuration file
@@ -365,7 +387,7 @@ docker exec nginx-certbot certbot revoke --cert-path /etc/letsencrypt/live/domai
 Then delete all certificate files.
 
 ```sh
-docker exec nginx-certbot certbot delete --cert-name domain.com
+docker exec nginx-certbot certbot delete --cert-name domain.com --non-interactive
 ```
 
 ### Force renewal of certificates

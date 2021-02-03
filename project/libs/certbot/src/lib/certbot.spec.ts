@@ -4,28 +4,49 @@ import { getConfig } from '@tx/config';
 import { Domain } from '@tx/domain';
 import { logger } from '@tx/logger';
 import { updateStore } from '@tx/store';
+import { replaceAll } from '@tx/util';
 
 import { requestCertificate } from './certbot';
 
 interface ExecResponse {
-	error: { message: string };
+	pid: number;
+	status: number;
+	stdout: string;
+	stderr: string;
 }
 
+let execArgs: string[];
 let execCommand: string;
 let domain: Domain;
 
 const NO_DOMAIN = { primary: '' } as Domain;
+const FAKE_FAILURE = { primary: 'fake-failure.nu' } as Domain;
+const FAKE_CATCH = { primary: 'fake-catch.nu' } as Domain;
 
 jest.mock('child_process', () => ({
-	spawnSync: jest.fn().mockImplementation(
-		(command: string, args: string[]): ExecResponse => {
-			execCommand = `${command} ${args.join(' ')}`;
-			if (execCommand.includes('--cert-name  ')) {
-				return { error: { message: 'missing primary domain' } };
-			}
-			return { error: undefined };
+	spawnSync: jest.fn().mockImplementation((command: string, args: string[]):
+		| Error
+		| ExecResponse => {
+		execArgs = [...args];
+		execCommand = `${command} ${args.join(' ')}`;
+		if (execArgs.includes(FAKE_CATCH.primary)) {
+			throw new Error('invalid command');
+		} else if (execArgs.includes(FAKE_FAILURE.primary)) {
+			return {
+				pid: 99,
+				status: 1,
+				stdout: '',
+				stderr: 'certbot error'
+			};
+		} else {
+			return {
+				pid: 99,
+				status: 0,
+				stdout: '',
+				stderr: 'Renewal request was successful'
+			};
 		}
-	)
+	})
 }));
 
 logger.info = jest.fn();
@@ -50,14 +71,26 @@ describe('certbot', () => {
 		expect(execCommand.includes('undefined')).toBeFalsy();
 	});
 
+	it('should never have empty spawnSync arguments', () => {
+		requestCertificate(domain);
+		expect(execArgs.some((arg) => arg === '')).toBeFalsy();
+	});
+
 	it('should return true for sucessful request', () => {
 		const status = requestCertificate(domain);
+		expect(logger.info).toHaveBeenCalledWith('Renewal request was successful');
 		expect(status).toBeTruthy();
 	});
 
-	it('should print error and return false for failed request', () => {
-		const status = requestCertificate(NO_DOMAIN);
-		expect(logger.error).toHaveBeenCalledTimes(1);
+	it('should print error and return false for invalid request command', () => {
+		const status = requestCertificate(FAKE_CATCH);
+		expect(logger.error).toHaveBeenCalledWith(new Error('invalid command'));
+		expect(status).toBeFalsy();
+	});
+
+	it('should print error and return false for certbot error', () => {
+		const status = requestCertificate(FAKE_FAILURE);
+		expect(logger.error).toHaveBeenLastCalledWith('certbot error');
 		expect(status).toBeFalsy();
 	});
 
@@ -103,19 +136,31 @@ describe('certbot', () => {
 		).toBeTruthy();
 	});
 
-	it('should set primary domain', () => {
+	it('should set cert-name to primary domain', () => {
 		requestCertificate(domain);
 		expect(execCommand.includes(`--cert-name ${domain.primary}`)).toBeTruthy();
 	});
 
-	it('should set optional domains', () => {
+	it('should have primary domain only', () => {
 		requestCertificate(domain);
-		expect(execCommand.includes(' -d ')).toBeFalsy();
+		expect(
+			execCommand.includes(`--cert-name ${domain.primary} -d ${domain.primary}`)
+		).toBeTruthy();
 
+		expect(
+			replaceAll(execCommand, ' ', '').includes(
+				`--cert-name${domain.primary}-d${domain.primary}`
+			)
+		).toBeTruthy();
+	});
+
+	it('should have multiple domains', () => {
 		domain = { ...domain, optional: ['a@a.com', 'b@b.com', 'c@c.com'] };
 		requestCertificate(domain);
 		expect(
-			execCommand.includes(`${domain.primary} -d a@a.com -d b@b.com -d c@c.com`)
+			execCommand.includes(
+				`--cert-name ${domain.primary} -d ${domain.primary},a@a.com,b@b.com,c@c.com`
+			)
 		).toBeTruthy();
 	});
 
