@@ -16,10 +16,13 @@ export const startMainLoop = (nginx: ChildProcessWithoutNullStreams) => {
 
 	const renewalTimer = getConfig().letsEncrypt.renewalTimer;
 
-	const timer = setIntervalWithoutDelay(() => {
+	let timerRef: NodeJS.Timeout = null;
+	timerRef = setIntervalWithoutDelay(() => {
 		const status = renewalProcess();
 		if (status > 0) {
-			if (timer) timer.unref();
+			if (timerRef) {
+				timerRef.unref();
+			}
 			exitAllProcesses('renewal failed', nginx);
 		}
 
