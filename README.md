@@ -26,7 +26,7 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 This rating is returned for both domains and sub domains.
 
-![SSL Labs rating](assets/ssl-labs.png)
+![SSL Labs rating](assets/ssl-labs-w800.png)
 
 ## Table of contents <!-- omit in toc -->
 
@@ -272,8 +272,11 @@ docker-compose -f docker-compose.dry-run.yml up
 Some configurations are provided by the image. Those files are located in the `nginx_conf.d/secure.d` folder.
 
 - `header.conf`  
-  This file contains header properties to handle and trying to prevent hacker attacks.
-  More about headers [https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/)
+  This file contains header properties to fine tune the browser security and availability behaviour. Test the settings on [Security Headers](https://securityheaders.com/).
+
+  More about headers on site [https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/), or use the links provided inside `header.conf` file.
+
+  > :fire: It's highly likely that these properties needs to be changed depending on your, or the hosted sites needs.
 
 - `location.conf`  
   This file is not used by default by the image but is available for [reverse proxy location blocks](http://nginx.org/en/docs/http/ngx_http_upstream_module.html).
