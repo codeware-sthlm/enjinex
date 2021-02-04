@@ -1,3 +1,9 @@
+# 0.6 (2021-02-04)
+
+Enhancements
+
+- Tuning `headers.conf` for **A+** rating on [SecurityHeaders.com](https://securityheaders.com)
+
 # 0.5 (2021-02-03)
 
 Enhancements
