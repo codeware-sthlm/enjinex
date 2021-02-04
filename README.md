@@ -19,14 +19,19 @@ Create and automatically renew website SSL certificates using the free [Let's En
 | Monorepo tooling by [Nx](nx.dev)                                              | :white_check_mark: |
 | Unit tests                                                                    | :white_check_mark: |
 | Auto linting                                                                  | :white_check_mark: |
-| A+ overall rating at [SSL Labs](https://ssllabs.com)                          | :white_check_mark: |
 | [Diffie-Hellman parameters](#diffie-hellman-parameters)                       | :white_check_mark: |
+| **A+** rating on [SSL Labs](https://ssllabs.com)                              | :white_check_mark: |
+| **A+** rating on [Security Headers](https://securityheaders.com)              | :white_check_mark: |
 
 ### SSL Labs rating
 
 This rating is returned for both domains and sub domains.
 
 ![SSL Labs rating](assets/ssl-labs-w800.png)
+
+### Security Headers rating
+
+![Security Headers rating](assets/security-headers-w850.png)
 
 ## Table of contents <!-- omit in toc -->
 
