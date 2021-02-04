@@ -26,7 +26,7 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 This rating is returned for both domains and sub domains.
 
-![SSL Labs rating](assets/ssl-labs.png)
+![SSL Labs rating](assets/ssl-labs-w800.png)
 
 ## Table of contents <!-- omit in toc -->
 
