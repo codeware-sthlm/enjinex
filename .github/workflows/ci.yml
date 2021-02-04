@@ -20,6 +20,11 @@ on:
   # schedule:
   #   - cron: "0 2 * * *" # everyday at 02:00 UTC
   push:
+    paths-ignore:
+      - '.*'
+      - '**/.*'
+      - project/tools/**
+    #paths:
     # branches:
     #   - "**"
     tags:
@@ -75,7 +80,7 @@ jobs:
 
       - name: Slack
         uses: lazy-actions/slatify@v3.0.0
-        if: ${{ github.event_name == 'push tags' }} #TODO: apply failure() when stable
+        if: ${{ failure() || github.event_name == 'push tag' }}
         with:
           type: ${{ job.status }}
           job_name: '${{ github.workflow }}'
