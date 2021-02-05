@@ -1,6 +1,9 @@
 # docker-nginx-certbot <!-- omit in toc -->
 
-![Continuous integration](https://github.com/abstract-tlabs/docker-nginx-certbot/workflows/ci/badge.svg?branch=master)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/docker-nginx-certbot/ci)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/trekkilabs/docker-nginx-certbot?include_prereleases)
+![GitHub top language](https://img.shields.io/github/languages/top/trekkilabs/docker-nginx-certbot)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trekkilabs/docker-nginx-certbot)
 
 Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [Certbot](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
@@ -37,33 +40,10 @@ This rating is returned for both domains and sub domains.
 
 - [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
 - [:dart: &nbsp; Usage](#dart--usage)
-  - [Prerequisites](#prerequisites)
-  - [Environment Variables](#environment-variables)
-  - [Persistent Volumes](#persistent-volumes)
-  - [Domain Configurations](#domain-configurations)
-  - [Build and run yourself](#build-and-run-yourself)
-  - [Run with `docker-compose`](#run-with-docker-compose)
-  - [Run isolated tests](#run-isolated-tests)
-  - [Run test with expected failure](#run-test-with-expected-failure)
 - [:policeman: &nbsp; Domain security](#policeman--domain-security)
-  - [Image provided configuration](#image-provided-configuration)
-  - [Diffie-Hellman parameters](#diffie-hellman-parameters)
 - [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
-  - [Node service](#node-service)
-  - [`Nginx` configuration](#nginx-configuration)
-  - [User domain configuration](#user-domain-configuration)
 - [:gear: &nbsp; Managing certificates](#gear--managing-certificates)
-  - [List certificates known by `certbot`](#list-certificates-known-by-certbot)
-  - [Revoke a certificate](#revoke-a-certificate)
-  - [Force renewal of certificates](#force-renewal-of-certificates)
 - [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
-  - [Running containers](#running-containers)
-  - [Container logs](#container-logs)
-  - [List all `Let's Encrypt` domain folders](#list-all-lets-encrypt-domain-folders)
-  - [List secret files for domain `domain.com`](#list-secret-files-for-domain-domaincom)
-  - [Display `Nginx` main configuration](#display-nginx-main-configuration)
-  - [List read-only `Nginx` configuration files provided by `nginx-certbot` image](#list-read-only-nginx-configuration-files-provided-by-nginx-certbot-image)
-  - [Follow `Nginx` logs](#follow-nginx-logs)
 - [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
 - [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
 
