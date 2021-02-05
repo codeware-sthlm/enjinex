@@ -32,7 +32,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-multi-os:
     name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -41,17 +41,18 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node_version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node_version }}
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
 
-    - name: Yarn install and test affected
-      run: |
-        yarn install
-        yarn nx affected:test
-        
+      - name: Yarn install and test affected
+        run: |
+          cd project
+          yarn install
+          yarn nx affected:test
+
   build-deploy:
     runs-on: ubuntu-latest
     name: Build and Deploy
