@@ -32,6 +32,36 @@ on:
   pull_request:
 
 jobs:
+  test:
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['14']
+        os: [ubuntu-latest] #, windows-latest, macOS-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install dependencies
+        run: |
+          cd project
+          yarn install
+
+      - name: Lint
+        run: |
+          cd project
+          yarn nx run-many --target=lint --all
+
+      - name: Test
+        run: |
+          cd project
+          yarn nx run-many --target=test --all
+
   build-deploy:
     runs-on: ubuntu-latest
     name: Build and Deploy
