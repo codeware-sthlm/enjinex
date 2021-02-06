@@ -1,3 +1,9 @@
+# 1.0.RC1 (2021-02-xx)
+
+Misc
+
+- Extend GitHub action with a test job
+
 # 0.6 (2021-02-04)
 
 Enhancements
