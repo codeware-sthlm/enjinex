@@ -104,7 +104,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: echo "Deploy to Docker Hub with tags ${{ steps.docker_meta.outputs.tags }}"
 
       - name: Login to GitHub Container Registry
         if: ${{ steps.docker_meta.outputs.github_cr }}
@@ -113,7 +112,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
-        run: echo "Deploy to GitHub Container Registry with tags ${{ steps.docker_meta.outputs.tags }}"
 
       - name: Build and push
         id: build_push
