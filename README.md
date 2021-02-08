@@ -1,6 +1,7 @@
 # docker-nginx-certbot <!-- omit in toc -->
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/docker-nginx-certbot/ci)
+![CodeQL](https://github.com/trekkilabs/docker-nginx-certbot/workflows/CodeQL/badge.svg)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/trekkilabs/docker-nginx-certbot?include_prereleases)
 ![GitHub top language](https://img.shields.io/github/languages/top/trekkilabs/docker-nginx-certbot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trekkilabs/docker-nginx-certbot)
@@ -9,7 +10,7 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 ## :round_pushpin: &nbsp; Features <!-- omit in toc -->
 
-|                                                                               |                    |
+| Feature                                                                       |                    |
 | ----------------------------------------------------------------------------- | ------------------ |
 | Distributed as Docker image                                                   | :white_check_mark: |
 | Built with Node                                                               | :white_check_mark: |
@@ -49,7 +50,7 @@ This rating is returned for both domains and sub domains.
 
 ## :desktop_computer: &nbsp; Supported platforms
 
-Deployed Docker images can be found [here](https://github.com/orgs/abstract-tlabs/packages/container/package/docker-nginx-certbot%2Fnginx-certbot), supporting the following platforms:
+Deployed releases can be found on Docker Hub [https://hub.docker.com/r/trekkilabs/nginx-certbot](https://hub.docker.com/r/trekkilabs/nginx-certbot).
 
 | Platform     | Architecture   | Computers                                |
 | ------------ | -------------- | ---------------------------------------- |
@@ -190,7 +191,7 @@ version: '3.8'
 
 services:
   nginx:
-    image: ghcr.io/abstract-tlabs/docker-nginx-certbot/nginx-certbot:latest
+    image: trekkilabs/nginx-certbot:latest
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@domain.com
@@ -319,13 +320,17 @@ The flow chart for `init` application:
 
 Inside folder `nginx_conf.d` there are some configuration files for `Nginx` that works out of the box. It's not intended for those to be edited but, of course, if you know what you're doing feel free to improve or adjust to your needs.
 
-| Config file    | Local folder             | Container folder       | Responsibility                                               |
-| -------------- | ------------------------ | ---------------------- | ------------------------------------------------------------ |
-| `certbot.conf` | `nginx_conf.d/conf.d/`   | `/etc/nginx/conf.d/`   | Verifying ACME challenges from Let's Encrypty                |
-| `gzip.conf`    | `nginx_conf.d/conf.d/`   | `/etc/nginx/conf.d/`   | Comression (`gzip`) settings                                 |
-| `http.conf`    | `nginx_conf.d/conf.d/`   | `/etc/nginx/conf.d/`   | Port 80 listener; redirects to `certbot.conf` or 443 (https) |
-| `header.conf`  | `nginx_conf.d/secure.d/` | `/etc/nginx/secure.d/` | Header properties for improved security                      |
-| `ssl.conf`     | `nginx_conf.d/secure.d/` | `/etc/nginx/secure.d/` | SSL/TLS properties for strong encryption                     |
+- Local folder: `nginx_conf.d/...`
+
+- Container folder: `/etc/nginx/...`
+
+| Config file    | Local folder | Container folder | Responsibility                                               |
+| -------------- | ------------ | ---------------- | ------------------------------------------------------------ |
+| `certbot.conf` | `conf.d/`    | `conf.d/`        | Verifying ACME challenges from Let's Encrypty                |
+| `gzip.conf`    | `conf.d/`    | `conf.d/`        | Comression (`gzip`) settings                                 |
+| `http.conf`    | `conf.d/`    | `conf.d/`        | Port 80 listener; redirects to `certbot.conf` or 443 (https) |
+| `header.conf`  | `secure.d/`  | `secure.d/`      | Header properties for improved security                      |
+| `ssl.conf`     | `secure.d/`  | `secure.d/`      | SSL/TLS properties for strong encryption                     |
 
 ### User domain configuration
 

@@ -1,8 +1,10 @@
-# 1.0.RC1 (2021-02-xx)
+# 0.7 (2021-02-xx)
 
 Misc
 
-- Extend GitHub action with a test job
+- Extend GitHub action with a lint and test job
+- Connect to Docker Hub and deploy tagged releases
+- PR branches are deployed to GitHub Container Registry
 
 # 0.6 (2021-02-04)
 
