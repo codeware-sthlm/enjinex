@@ -29,13 +29,15 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 ### SSL Labs rating
 
-This rating is returned for both domains and sub domains.
+![alt text][ssl-logo]
 
-![SSL Labs rating](assets/ssl-labs-w800.png)
+[ssl-logo]: https://github.com/trekkilabs/docker-nginx-certbot/blob/master/assets/ssl-labs-w800.png 'SSL Labs rating'
 
 ### Security Headers rating
 
-![Security Headers rating](assets/security-headers-w850.png)
+![alt text][shr-logo]
+
+[shr-logo]: https://github.com/trekkilabs/docker-nginx-certbot/blob/master/assets/security-headers-w850.png 'Security Headers rating'
 
 ## Table of contents <!-- omit in toc -->
 
