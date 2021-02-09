@@ -125,7 +125,8 @@ jobs:
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
-          tags: ${{ steps.docker_meta.outputs.tags }}
+          # Always push as latest tag, Docker Hub builds the image tagged with version
+          tags: ${{ steps.docker_meta.outputs.args.DOCKER_META_IMAGES }}:latest
           labels: ${{ steps.docker_meta.outputs.labels }}
 
       - name: Slack
