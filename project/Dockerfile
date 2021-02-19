@@ -23,16 +23,13 @@ LABEL maintainer="Håkan Ströberg <hakan.stroberg@trekki.se>"
 # Do additional installs in one RUN command to avoid creating large
 # intermediate layers on non-squashable docker installs
 RUN apt update && \
-    apt install -y python3 python3-dev libffi6 libffi-dev libssl-dev curl build-essential procps && \
-    curl -L 'https://bootstrap.pypa.io/get-pip.py' | python3 && \
-    pip install -U cffi certbot && \
+    # Install certbot
+    apt install -y certbot && \
     # Install Node 15
     curl -sL https://deb.nodesource.com/setup_15.x | bash - && \
-    apt-get install -y nodejs && \
+    apt install -y nodejs && \
     # Cleanup
-    apt remove --purge -y python3-dev build-essential libffi-dev libssl-dev curl && \
-    apt-get autoremove -y && \
-    apt-get clean && \
+    apt autoremove -y && \
     rm -rf /var/lib/apt/lists/* && \
     # Create certbot directories and set proper permissions
     mkdir -p /var/www/letsencrypt && \
