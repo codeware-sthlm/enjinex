@@ -1,7 +1,9 @@
 # docker-nginx-certbot <!-- omit in toc -->
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/docker-nginx-certbot/ci)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=alert_status)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
 ![CodeQL](https://github.com/trekkilabs/docker-nginx-certbot/workflows/CodeQL/badge.svg)
+
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/trekkilabs/docker-nginx-certbot?include_prereleases)
 ![GitHub top language](https://img.shields.io/github/languages/top/trekkilabs/docker-nginx-certbot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trekkilabs/docker-nginx-certbot)
