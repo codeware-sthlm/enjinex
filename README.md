@@ -8,49 +8,49 @@
 
 Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [Certbot](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
-## :round_pushpin: &nbsp; Features <!-- omit in toc -->
+## Features <!-- omit in toc -->
 
-| Feature                                                                       |                    |
-| ----------------------------------------------------------------------------- | ------------------ |
-| Distributed as Docker image                                                   | :white_check_mark: |
-| Built with Node                                                               | :white_check_mark: |
-| Type safe code with TypeScript                                                | :white_check_mark: |
-| [Multi-platform support](#desktop_computer--supported-platforms)              | :white_check_mark: |
-| [Node signal handling](#man_shrugging--how-does-this-work) to prevent zombies | :white_check_mark: |
-| Configure [multiple domains](#multiple-domains)                               | :white_check_mark: |
-| Automatic Let's Encrypt certificate renewal                                   | :white_check_mark: |
-| [Persistent volumes](#persistent-volumes) for certificates and logs           | :white_check_mark: |
-| Monorepo tooling by [Nx](nx.dev)                                              | :white_check_mark: |
-| Unit tests                                                                    | :white_check_mark: |
-| Auto linting                                                                  | :white_check_mark: |
-| [Diffie-Hellman parameters](#diffie-hellman-parameters)                       | :white_check_mark: |
-| **A+** rating on [SSL Labs](https://ssllabs.com)                              | :white_check_mark: |
-| **A+** rating on [Security Headers](https://securityheaders.com)              | :white_check_mark: |
+|                                                                               |
+| ----------------------------------------------------------------------------- |
+| Distributed as Docker image                                                   |
+| Built with Node                                                               |
+| Type safe code with TypeScript                                                |
+| [Multi-platform support](#desktop_computer--supported-platforms)              |
+| [Node signal handling](#man_shrugging--how-does-this-work) to prevent zombies |
+| Configure [multiple domains](#multiple-domains)                               |
+| Automatic Let's Encrypt certificate renewal                                   |
+| [Persistent volumes](#persistent-volumes) for certificates and logs           |
+| Monorepo tooling by [Nx](nx.dev)                                              |
+| Unit tests                                                                    |
+| Auto linting                                                                  |
+| [Diffie-Hellman parameters](#diffie-hellman-parameters)                       |
+| **A+** rating on [SSL Labs](https://ssllabs.com)                              |
+| **A+** rating on [Security Headers](https://securityheaders.com)              |
 
 ### SSL Labs rating
 
 ![alt text][ssl-logo]
 
-[ssl-logo]: https://github.com/trekkilabs/docker-nginx-certbot/blob/master/assets/ssl-labs-w800.png 'SSL Labs rating'
+[ssl-logo]: /assets/ssl-labs-w800.png 'SSL Labs rating'
 
 ### Security Headers rating
 
 ![alt text][shr-logo]
 
-[shr-logo]: https://github.com/trekkilabs/docker-nginx-certbot/blob/master/assets/security-headers-w850.png 'Security Headers rating'
+[shr-logo]: /assets/security-headers-w850.png 'Security Headers rating'
 
 ## Table of contents <!-- omit in toc -->
 
-- [:desktop_computer: &nbsp; Supported platforms](#desktop_computer--supported-platforms)
-- [:dart: &nbsp; Usage](#dart--usage)
-- [:policeman: &nbsp; Domain security](#policeman--domain-security)
-- [:man_shrugging: &nbsp; How does this work?](#man_shrugging--how-does-this-work)
-- [:gear: &nbsp; Managing certificates](#gear--managing-certificates)
-- [:whale: &nbsp; Useful Docker commands](#whale--useful-docker-commands)
-- [:bookmark: &nbsp; Reference sites](#bookmark--reference-sites)
-- [:pray: &nbsp; Acknowledgments](#pray--acknowledgments)
+- [Supported platforms](#supported-platforms)
+- [Usage](#usage)
+- [Domain security](#domain-security)
+- [How does this work?](#how-does-this-work)
+- [Managing certificates](#managing-certificates)
+- [Useful Docker commands](#useful-docker-commands)
+- [Reference sites](#reference-sites)
+- [Acknowledgments](#acknowledgments)
 
-## :desktop_computer: &nbsp; Supported platforms
+## Supported platforms
 
 Deployed releases can be found on Docker Hub [https://hub.docker.com/r/trekkilabs/nginx-certbot](https://hub.docker.com/r/trekkilabs/nginx-certbot).
 
@@ -60,7 +60,7 @@ Deployed releases can be found on Docker Hub [https://hub.docker.com/r/trekkilab
 | linux/arm64  | ARM 64-bit     | Raspberry Pi 3 _(and later)_             |
 | linux/arm/v7 | ARM 64-bit     | Raspberry Pi 2 Model B                   |
 
-## :dart: &nbsp; Usage
+## Usage
 
 ### Prerequisites
 
@@ -129,8 +129,6 @@ server {
 }
 ```
 
-> :wave: &nbsp; **INFO**
->
 > It's very important that the domain name (e.g. `my-site.io`) match for:
 >
 > - File name `my-site.io.conf`
@@ -152,8 +150,6 @@ server {
 }
 ```
 
-> :fire: &nbsp; **WARNING**
->
 > Using a `server` block that listens on port 80 may cause issues with renewal. This container will already handle forwarding to port 443, so they are unnecessary. See `nginx_conf.d/http.conf`.
 
 ### Build and run yourself
@@ -180,8 +176,6 @@ docker run -it --rm -d \
            nginx-certbot:local
 ```
 
-> :bulb: &nbsp; **NOTE**
->
 > Here we use local folders for volumes `letsencrypt` and `nginx`, to benefit transparency during testing. For a production like setup this is not recommended.
 
 ### Run with `docker-compose`
@@ -253,7 +247,7 @@ It's an educational example how `stderr` from a spawned `certbot` command may lo
 docker-compose -f docker-compose.dry-run.yml up
 ```
 
-## :policeman: &nbsp; Domain security
+## Domain security
 
 ### Image provided configuration
 
@@ -264,7 +258,7 @@ Some configurations are provided by the image. Those files are located in the `n
 
   More about headers on site [https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/), or use the links provided inside `header.conf` file.
 
-  > :fire: It's highly likely that these properties needs to be changed depending on your, or the hosted sites needs.
+  > It's highly likely that these properties needs to be changed depending on your, or the hosted sites needs.
 
 - `location.conf`  
   This file is not used by default by the image but is available for [reverse proxy location blocks](http://nginx.org/en/docs/http/ngx_http_upstream_module.html).
@@ -279,7 +273,7 @@ This adds another layer of security. It's best explained by [Wikipedia](https://
 
 The default configuration promotes 2048 bits. Higher bit rates could be used but this will lead to reduced performance. It's your choice but 2048 bits is quite hard to crack.
 
-## :man_shrugging: &nbsp; How does this work?
+## How does this work?
 
 ### Node service
 
@@ -353,7 +347,7 @@ For a domain to be marked as _valid_ and hence be included in the renewal proces
    2. all domains must belong to the same host
    3. all domains must be unique
 
-## :gear: &nbsp; Managing certificates
+## Managing certificates
 
 Certificates can also be accessed from the running container by manually executing the `certbot` command.
 
@@ -395,7 +389,7 @@ docker kill --signal=USR2 nginx-certbot
 
 But don't do this to often, otherwise the Let's Encrypt limit might be reached.
 
-## :whale: &nbsp; Useful Docker commands
+## Useful Docker commands
 
 ### Running containers
 
@@ -423,6 +417,12 @@ docker exec nginx-certbot tail -200f /logs/error.log
 
 # All other log level
 docker exec nginx-certbot tail -200f /logs/combined.log
+```
+
+### Get a shell to the container
+
+```sh
+docker container exec -it nginx-certbot /bin/bash
 ```
 
 ### List all `Let's Encrypt` domain folders
@@ -463,13 +463,13 @@ docker exec nginx-certbot tail -200f /var/log/nginx/access.log
 docker exec nginx-certbot tail -200f /var/log/nginx/error.log
 ```
 
-## :bookmark: &nbsp; Reference sites
+## Reference sites
 
 - [Let's Encrypt](https://letsencrypt.org/)
 - [Certbot](https://certbot.eff.org/)
 - [Managing certificates](https://certbot.eff.org/docs/using.html?highlight=hook#managing-certificates)
 - [GitHub Actions using Docker buildx](https://github.com/marketplace/actions/build-and-push-docker-images#usage)
 
-## :pray: &nbsp; Acknowledgments
+## Acknowledgments
 
 This repository was originally cloned from `@staticfloat`, kudos to him and all other contributors. The reason to make a clone is to convert from `bash` to `TypeScript` and privde unit tests. Still many good ideas are kept but in a different form.
