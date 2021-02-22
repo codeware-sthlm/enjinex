@@ -7,6 +7,7 @@ Enhancements
 
 Misc
 
+- Rename project to `enjinex`
 - Describe the importance of `header.conf` in `README`
 - Add more badges to `README`
 

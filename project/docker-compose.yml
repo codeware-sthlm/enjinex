@@ -3,9 +3,9 @@ version: '3.8'
 # Compose file for a local isolated project test!
 
 services:
-  nginx-certbot:
+  enjinex:
     build: .
-    container_name: nginx-certbot
+    container_name: enjinex
     restart: 'no'
     environment:
       CERTBOT_EMAIL: me@localhost

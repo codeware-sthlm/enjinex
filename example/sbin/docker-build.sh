@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t nginx-certbot:local .
+docker build -t enjinex:local .

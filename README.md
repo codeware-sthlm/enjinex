@@ -1,16 +1,16 @@
-# docker-nginx-certbot <!-- omit in toc -->
+# enjinex <!-- omit in toc -->
 
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/trekkilabs/docker-nginx-certbot?include_prereleases)
-![GitHub top language](https://img.shields.io/github/languages/top/trekkilabs/docker-nginx-certbot)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trekkilabs/docker-nginx-certbot)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/trekkilabs/enjinex?include_prereleases)
+![GitHub top language](https://img.shields.io/github/languages/top/trekkilabs/enjinex)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trekkilabs/enjinex)
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/docker-nginx-certbot/ci)
-![CodeQL](https://github.com/trekkilabs/docker-nginx-certbot/workflows/CodeQL/badge.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=alert_status)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/enjinex/ci)
+![CodeQL](https://github.com/trekkilabs/enjinex/workflows/CodeQL/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=alert_status)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
 
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=security_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=security_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
 
 Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [Certbot](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
@@ -58,7 +58,7 @@ Create and automatically renew website SSL certificates using the free [Let's En
 
 ## Supported platforms
 
-Deployed releases can be found on Docker Hub [https://hub.docker.com/r/trekkilabs/nginx-certbot](https://hub.docker.com/r/trekkilabs/nginx-certbot).
+Deployed releases can be found on Docker Hub [https://hub.docker.com/r/trekkilabs/enjinex](https://hub.docker.com/r/trekkilabs/enjinex).
 
 | Platform     | Architecture   | Computers                                |
 | ------------ | -------------- | ---------------------------------------- |
@@ -163,7 +163,7 @@ server {
 If you have pulled the repository and are experimenting or just whats to build it yourself, the image could be built like this:
 
 ```sh
-docker build -t nginx-certbot:local .
+docker build -t enjinex:local .
 ```
 
 The command must be executed inside `project/` folder.
@@ -178,8 +178,8 @@ docker run -it --rm -d \
            -v "$(pwd)/letsencrypt:/etc/letsencrypt" \
            -v "$(pwd)/nginx:/var/log/nginx" \
            -v "$(pwd)/ssl:/etc/nginx/ssl" \
-           --name nginx-certbot \
-           nginx-certbot:local
+           --name enjinex \
+           enjinex:local
 ```
 
 > Here we use local folders for volumes `letsencrypt` and `nginx`, to benefit transparency during testing. For a production like setup this is not recommended.
@@ -193,7 +193,7 @@ version: '3.8'
 
 services:
   nginx:
-    image: trekkilabs/nginx-certbot:latest
+    image: trekkilabs/enjinex:latest
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@domain.com
@@ -364,25 +364,25 @@ More commands can be found in [References](#bookmark--reference-sites).
 List all certificates
 
 ```sh
-docker exec nginx-certbot certbot certificates
+docker exec enjinex certbot certificates
 ```
 
 or just domain.com
 
 ```sh
-docker exec nginx-certbot certbot certificates --cert-name domain.com
+docker exec enjinex certbot certificates --cert-name domain.com
 ```
 
 ### Revoke a certificate
 
 ```sh
-docker exec nginx-certbot certbot revoke --cert-path /etc/letsencrypt/live/domain.com/fullchain.pem
+docker exec enjinex certbot revoke --cert-path /etc/letsencrypt/live/domain.com/fullchain.pem
 ```
 
 Then delete all certificate files.
 
 ```sh
-docker exec nginx-certbot certbot delete --cert-name domain.com --non-interactive
+docker exec enjinex certbot delete --cert-name domain.com --non-interactive
 ```
 
 ### Force renewal of certificates
@@ -390,7 +390,7 @@ docker exec nginx-certbot certbot delete --cert-name domain.com --non-interactiv
 This feature uses `SIGUSR2` to notify the container to start a renewal process with `--force-renewal` flag applied.
 
 ```sh
-docker kill --signal=USR2 nginx-certbot
+docker kill --signal=USR2 enjinex
 ```
 
 But don't do this to often, otherwise the Let's Encrypt limit might be reached.
@@ -405,68 +405,68 @@ docker ps
 
 ### Container logs
 
-`nginx-certbot` can be found using the previous command.
+`enjinex` can be found using the previous command.
 
 ```sh
 # Follow log output run-time
-docker logs -f nginx-certbot
+docker logs -f enjinex
 
 # Display last 50 rows
-docker logs -n 50 nginx-certbot
+docker logs -n 50 enjinex
 ```
 
 These logs are also saved by `winston` as JSON objects to `/logs` folder.
 
 ```sh
 # Error logs
-docker exec nginx-certbot tail -200f /logs/error.log
+docker exec enjinex tail -200f /logs/error.log
 
 # All other log level
-docker exec nginx-certbot tail -200f /logs/combined.log
+docker exec enjinex tail -200f /logs/combined.log
 ```
 
 ### Get a shell to the container
 
 ```sh
-docker container exec -it nginx-certbot /bin/bash
+docker container exec -it enjinex /bin/bash
 ```
 
 ### List all `Let's Encrypt` domain folders
 
 ```sh
-docker exec nginx-certbot ls -la /etc/letsencrypt/live
+docker exec enjinex ls -la /etc/letsencrypt/live
 ```
 
 ### List secret files for domain `domain.com`
 
 ```sh
-docker exec nginx-certbot ls -la /etc/letsencrypt/live/domain.com
+docker exec enjinex ls -la /etc/letsencrypt/live/domain.com
 ```
 
 ### Display `Nginx` main configuration
 
 ```sh
-docker exec nginx-certbot cat /etc/nginx/nginx.conf
+docker exec enjinex cat /etc/nginx/nginx.conf
 ```
 
-### List read-only `Nginx` configuration files provided by `nginx-certbot` image
+### List read-only `Nginx` configuration files provided by `enjinex` image
 
 ```sh
 # http/https configuration
-docker exec nginx-certbot ls -la /etc/nginx/conf.d
+docker exec enjinex ls -la /etc/nginx/conf.d
 
 # Secure server
-docker exec nginx-certbot ls -la /etc/nginx/secure.d
+docker exec enjinex ls -la /etc/nginx/secure.d
 ```
 
 ### Follow `Nginx` logs
 
 ```sh
 # Access logs
-docker exec nginx-certbot tail -200f /var/log/nginx/access.log
+docker exec enjinex tail -200f /var/log/nginx/access.log
 
 # Error logs
-docker exec nginx-certbot tail -200f /var/log/nginx/error.log
+docker exec enjinex tail -200f /var/log/nginx/error.log
 ```
 
 ## Reference sites

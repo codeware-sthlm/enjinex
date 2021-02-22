@@ -13,7 +13,7 @@ export const logger = createLogger({
 		format.splat(),
 		format.json()
 	),
-	defaultMeta: { service: 'nginx-certbot' },
+	defaultMeta: { service: 'enjinex' },
 	transports: [
 		//
 		// - Write all logs with level `error` and below to `error.log`
