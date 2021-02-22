@@ -7,9 +7,7 @@ import { logger } from '@tx/logger';
 import { renewalProcess } from './renewal-process';
 
 jest.mock('@tx/certbot', () => ({
-	requestCertificate: jest
-		.fn()
-		.mockReturnValue(new Promise((resolve) => resolve(true)))
+	requestCertificate: jest.fn().mockReturnValue(Promise.resolve(true))
 }));
 jest.mock('@tx/domain', () => ({
 	enableDomain: jest.fn(),
