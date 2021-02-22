@@ -1,4 +1,4 @@
-# 1.0-RC1 (2021-02-xx)
+# 1.0-RC1 (2021-02-22)
 
 Enhancements
 
@@ -7,7 +7,8 @@ Enhancements
 
 Misc
 
-- Describe the importance of `header.conf` in `README`.
+- Describe the importance of `header.conf` in `README`
+- Add more badges to `README`
 
 # 0.7 (2021-02-19)
 

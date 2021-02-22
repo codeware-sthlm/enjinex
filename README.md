@@ -1,12 +1,16 @@
 # docker-nginx-certbot <!-- omit in toc -->
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/docker-nginx-certbot/ci)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=alert_status)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
-![CodeQL](https://github.com/trekkilabs/docker-nginx-certbot/workflows/CodeQL/badge.svg)
-
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/trekkilabs/docker-nginx-certbot?include_prereleases)
 ![GitHub top language](https://img.shields.io/github/languages/top/trekkilabs/docker-nginx-certbot)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/trekkilabs/docker-nginx-certbot)
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/docker-nginx-certbot/ci)
+![CodeQL](https://github.com/trekkilabs/docker-nginx-certbot/workflows/CodeQL/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=alert_status)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
+
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_docker-nginx-certbot&metric=security_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_docker-nginx-certbot)
 
 Create and automatically renew website SSL certificates using the free [Let's Encrypt](https://letsencrypt.org/) certificate authority, and its client [Certbot](https://certbot.eff.org/), built on top of the [Nginx](https://www.nginx.com/) webserver.
 
