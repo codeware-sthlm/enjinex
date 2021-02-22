@@ -1,3 +1,14 @@
+# 1.0-RC1 (2021-02-xx)
+
+Enhancements
+
+- Fix reported sonarcloud issues
+- Add code coverage to unit tests
+
+Misc
+
+- Describe the importance of `header.conf` in `README`.
+
 # 0.7 (2021-02-19)
 
 Misc

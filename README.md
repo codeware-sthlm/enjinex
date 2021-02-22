@@ -260,7 +260,7 @@ Some configurations are provided by the image. Those files are located in the `n
 
   More about headers on site [https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/), or use the links provided inside `header.conf` file.
 
-  > It's highly likely that these properties needs to be changed depending on your, or the hosted sites needs.
+  > It's highly likely that these properties needs to be changed depending on your, or the hosted sites needs. Especially _Content Security Policy_ could lead to a site with a lot of console errors.
 
 - `location.conf`  
   This file is not used by default by the image but is available for [reverse proxy location blocks](http://nginx.org/en/docs/http/ngx_http_upstream_module.html).
