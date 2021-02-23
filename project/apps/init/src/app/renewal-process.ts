@@ -25,8 +25,7 @@ export const renewalProcess = (): number => {
 	if (domains.length) {
 		logger.info(`Found ${domains.length} domains to request certificates for`);
 		domains.forEach((domain) => {
-			const status = requestCertificate(domain);
-			if (!status) {
+			if (!requestCertificate(domain)) {
 				exitCode = 2;
 			}
 			enableDomain(domain);

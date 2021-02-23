@@ -1,3 +1,17 @@
+# 1.0-RC1 (2021-02-23)
+
+Enhancements
+
+- Fix reported sonarcloud issues
+- Add code coverage to unit tests
+
+Misc
+
+- Rename project to `enjinex`
+- Describe the importance of `header.conf` in `README`
+- Add more badges to `README`
+- Add test certs for localhost
+
 # 0.7 (2021-02-19)
 
 Misc

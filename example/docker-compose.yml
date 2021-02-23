@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  nginx:
+  enjinex:
     build: .
-    container_name: nginx-certbot
+    container_name: enjinex
     restart: unless-stopped
     environment:
       CERTBOT_EMAIL: owner@domain.com

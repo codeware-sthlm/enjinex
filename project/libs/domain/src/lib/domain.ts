@@ -217,9 +217,12 @@ export const getDomains = (): Domain[] => {
 				// followed by optional domains
 				const domains = splitBySpaces(domainsString);
 
+				// Avoid mutating domains array
+				const primary = [...domains].shift();
+				const optional = domains.slice(1);
 				return {
-					primary: domains.reverse().pop(),
-					optional: domains.reverse()
+					primary: primary,
+					optional: optional
 				} as Domain;
 			})
 

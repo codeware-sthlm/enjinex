@@ -94,7 +94,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: ${{ github.repository }}/nginx-certbot
+          images: ${{ github.repository }}/enjinex
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -154,7 +154,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
         with:
-          images: ghcr.io/${{ github.repository }}/nginx-certbot
+          images: ghcr.io/${{ github.repository }}/enjinex
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
