@@ -10,7 +10,7 @@ set -e
 SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
 
 # Full Qualified Domain Name
-FQDN="${1:-localhost.dev}"
+FQDN="${1:-localhost}"
 FQDN="$(echo "${FQDN}" | tr 'A-Z' 'a-z')"
 
 # Save certs to folder

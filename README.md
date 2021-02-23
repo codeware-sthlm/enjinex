@@ -192,7 +192,7 @@ There's an official Docker image deployed to GitLab Container Registry that can 
 version: '3.8'
 
 services:
-  nginx:
+  enjinex:
     image: trekkilabs/enjinex:latest
     restart: unless-stopped
     environment:
