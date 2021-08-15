@@ -1,3 +1,9 @@
+# 1.0-RC2 (2021-xx-xx)
+
+Enhancements
+
+  - New PR workflow with code coverage
+
 # 1.0-RC1 (2021-02-23)
 
 Enhancements
