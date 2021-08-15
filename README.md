@@ -7,6 +7,7 @@
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/trekkilabs/enjinex/ci)
 ![CodeQL](https://github.com/trekkilabs/enjinex/workflows/CodeQL/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=alert_status)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
+[![codecov](https://codecov.io/gh/trekkilabs/enjinex/branch/master/graph/badge.svg?token=C1X7B0I4A0)](https://codecov.io/gh/trekkilabs/enjinex)
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=trekkilabs_enjinex&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=trekkilabs_enjinex)
