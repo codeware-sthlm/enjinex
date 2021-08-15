@@ -1,0 +1,89 @@
+# Run lint, test and build on pull requests,
+# to make sure PR is ready for merge
+
+name: Pull Request
+
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14
+      - name: Install dependencies
+        run: |
+          cd project
+          yarn install
+      - name: Lint files
+        run: |
+          cd project
+          yarn nx run-many --target=lint --all
+
+  test:
+    name: Test
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 14
+        platform:
+          - ubuntu-latest
+          - macos-latest
+          #- windows-latest
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: |
+          cd project
+          yarn install
+      - name: Run tests
+        run: |
+          cd project
+          yarn nx run-many --target=test --all --codeCoverage
+      - name: Publish coverage
+        uses: codecov/codecov-action@v1.2.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./project/coverage
+
+  build:
+    name: Build
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14
+      - name: Install dependencies
+        run: |
+          cd project
+          yarn install
+      - name: Build
+        run: |
+          cd project
+          yarn nx run-many --target=build --configuration=production --all
