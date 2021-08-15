@@ -41,7 +41,7 @@ jobs:
         platform:
           - ubuntu-latest
           - macos-latest
-          - windows-latest
+          #- windows-latest
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout
