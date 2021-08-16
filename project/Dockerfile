@@ -26,7 +26,7 @@ RUN apt update && \
     # Install certbot
     apt install -y certbot && \
     # Install Node 15
-    curl -sL https://deb.nodesource.com/setup_15.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt install -y nodejs && \
     # Cleanup
     apt autoremove -y && \
