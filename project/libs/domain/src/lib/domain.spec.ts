@@ -1,9 +1,8 @@
 import * as fs from 'fs';
-import { basename, dirname, join } from 'path';
 import * as fsMock from 'mock-fs';
+import { basename, dirname, join } from 'path';
 
 import { Config } from '@tx/config';
-import { Domain } from '@tx/domain';
 import { logger } from '@tx/logger';
 
 import {
@@ -12,6 +11,7 @@ import {
 	getDomains,
 	transferUserConfig
 } from './domain';
+import { Domain } from './domain.interface';
 
 jest.mock('@tx/config', () => ({
 	getConfig: jest.fn().mockReturnValue({
@@ -44,6 +44,7 @@ fsMock({
 });
 
 logger.info = jest.fn();
+logger.warn = jest.fn();
 
 describe('domain', () => {
 	afterAll(() => fsMock.restore());

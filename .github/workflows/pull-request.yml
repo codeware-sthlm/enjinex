@@ -86,4 +86,4 @@ jobs:
       - name: Build affected apps and libs
         run: |
           cd project
-          yarn nx affected --target=build --configuration=production --parallel
+          yarn nx affected --target=build --prod --parallel
