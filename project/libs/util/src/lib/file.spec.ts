@@ -128,14 +128,16 @@ describe('file', () => {
 		});
 	});
 
-	it('should provide empty path and default to root', () => {
-		expect(findFilesFlat('').length).toBe(findFilesFlat('./').length);
-	});
+	describe('findFilesFlat', () => {
+		it('should provide empty path and default to root', () => {
+			expect(findFilesFlat('').length).toBe(findFilesFlat('./').length);
+		});
 
-	it('should find spec file only', () => {
-		expect(findFilesFlat(__dirname, 'file.spec.ts', true)).toEqual([
-			'file.spec.ts'
-		]);
+		it('should find spec file only', () => {
+			expect(findFilesFlat(__dirname, 'file.spec.ts', true)).toEqual([
+				'file.spec.ts'
+			]);
+		});
 	});
 
 	describe('findFilesContent', () => {
