@@ -26,10 +26,10 @@ jobs:
         run: |
           cd project
           yarn install
-      - name: Lint files
+      - name: Lint affected files
         run: |
           cd project
-          yarn nx run-many --target=lint --all
+          yarn nx affected --target=lint --parallel
 
   test:
     name: Test
@@ -56,10 +56,10 @@ jobs:
         run: |
           cd project
           yarn install
-      - name: Run tests
+      - name: Run affected tests
         run: |
           cd project
-          yarn nx run-many --target=test --all --codeCoverage
+          yarn nx affected --target=test --parallel --codeCoverage
       - name: Publish coverage
         uses: codecov/codecov-action@v2.0.3
         with:
@@ -83,7 +83,7 @@ jobs:
         run: |
           cd project
           yarn install
-      - name: Build
+      - name: Build affected apps and libs
         run: |
           cd project
-          yarn nx run-many --target=build --configuration=production --all
+          yarn nx affected --target=build --configuration=production --parallel
