@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: ${{ matrix.node_version }}
 
@@ -66,7 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: ${{ matrix.node_version }}
 
@@ -92,7 +92,7 @@ jobs:
 
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v3.5.0
         with:
           images: ${{ github.repository }}/enjinex
 
@@ -152,7 +152,7 @@ jobs:
 
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: crazy-max/ghaction-docker-meta@v3.5.0
         with:
           images: ghcr.io/${{ github.repository }}/enjinex
 
