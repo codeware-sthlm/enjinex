@@ -15,14 +15,14 @@
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
-			"@tx/config": ["libs/config/src/index.ts"],
-			"@tx/util": ["libs/util/src/index.ts"],
-			"@tx/domain": ["libs/domain/src/index.ts"],
 			"@tx/certbot": ["libs/certbot/src/index.ts"],
+			"@tx/config": ["libs/config/src/index.ts"],
+			"@tx/domain": ["libs/domain/src/index.ts"],
 			"@tx/environment": ["libs/environment/src/index.ts"],
-			"@tx/store": ["libs/store/src/index.ts"],
+			"@tx/logger": ["libs/logger/src/index.ts"],
 			"@tx/nginx": ["libs/nginx/src/index.ts"],
-			"@tx/logger": ["libs/logger/src/index.ts"]
+			"@tx/store": ["libs/store/src/index.ts"],
+			"@tx/util": ["libs/util/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp"]

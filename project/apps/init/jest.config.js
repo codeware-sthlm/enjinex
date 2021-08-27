@@ -2,13 +2,12 @@ module.exports = {
 	displayName: 'init',
 	preset: '../../jest.preset.js',
 	globals: {
-		'ts-jest': {
-			tsConfig: '<rootDir>/tsconfig.spec.json'
-		}
+		'ts-jest': { tsconfig: '<rootDir>/tsconfig.spec.json' }
 	},
 	transform: {
 		'^.+\\.[tj]s$': 'ts-jest'
 	},
 	moduleFileExtensions: ['ts', 'js', 'html'],
-	coverageDirectory: '../../coverage/apps/init'
+	coverageDirectory: '../../coverage/apps/init',
+	testEnvironment: 'node'
 };

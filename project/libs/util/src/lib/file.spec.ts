@@ -11,30 +11,31 @@ import {
 	readFileToArray
 } from './file';
 
-// Mock a filesystem
-fsMock({
-	src: {
-		'srcfile1.txt': '',
-		'srcfile2.txt': '',
-		subfolder: {
-			'subfile.txt': ''
-		}
-	},
-	dest: {
-		'destfile.txt': ''
-	},
-	readfolder: {
-		'norows.txt': '',
-		'2rowsWithoutTrailingEmptyLine.txt': 'row1\r\nrow2',
-		'2rowsWithTrailingEmptyLine.txt': 'row1\r\nrow2\r\n'
-	}
-});
-
 logger.warn = jest.fn();
 
 describe('file', () => {
 	describe('using mockFs', () => {
-		afterAll(() => fsMock.restore());
+		beforeEach(() => {
+			// Mock a filesystem
+			fsMock({
+				src: {
+					'srcfile1.txt': '',
+					'srcfile2.txt': '',
+					subfolder: {
+						'subfile.txt': ''
+					}
+				},
+				dest: {
+					'destfile.txt': ''
+				},
+				readfolder: {
+					'norows.txt': '',
+					'2rowsWithoutTrailingEmptyLine.txt': 'row1\r\nrow2',
+					'2rowsWithTrailingEmptyLine.txt': 'row1\r\nrow2\r\n'
+				}
+			});
+		});
+		afterEach(() => fsMock.restore());
 
 		describe('copyFolderSync', () => {
 			it('should copy files with subfolder to existing destination', () => {
@@ -127,14 +128,16 @@ describe('file', () => {
 		});
 	});
 
-	it('should provide empty path and default to root', () => {
-		expect(findFilesFlat('').length).toBe(findFilesFlat('./').length);
-	});
+	describe('findFilesFlat', () => {
+		it('should provide empty path and default to root', () => {
+			expect(findFilesFlat('').length).toBe(findFilesFlat('./').length);
+		});
 
-	it('should find spec file only', () => {
-		expect(findFilesFlat(__dirname, 'file.spec.ts', true)).toEqual([
-			'file.spec.ts'
-		]);
+		it('should find spec file only', () => {
+			expect(findFilesFlat(__dirname, 'file.spec.ts', true)).toEqual([
+				'file.spec.ts'
+			]);
+		});
 	});
 
 	describe('findFilesContent', () => {
