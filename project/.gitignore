@@ -49,3 +49,6 @@ isolated-test/nginx*
 # TEST FILES
 logs
 test
+
+# Nx migrations
+migrations.json

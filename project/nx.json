@@ -1,7 +1,7 @@
 {
 	"npmScope": "tx",
 	"affected": {
-		"defaultBase": "master"
+		"defaultBase": "origin/master"
 	},
 	"implicitDependencies": {
 		"workspace.json": "*",
@@ -23,20 +23,20 @@
 		}
 	},
 	"projects": {
-		"init": {
-			"tags": ["scope:apps", "type:apps"]
-		},
 		"certbot": {
 			"tags": ["scope:certbot", "type:app-lib"]
 		},
 		"config": {
 			"tags": ["scope:config", "type:setup"]
 		},
+		"domain": {
+			"tags": ["scope:domain", "type:app-lib"]
+		},
 		"environment": {
 			"tags": ["scope:environment", "type:setup"]
 		},
-		"domain": {
-			"tags": ["scope:domain", "type:app-lib"]
+		"init": {
+			"tags": ["scope:apps", "type:apps"]
 		},
 		"logger": {
 			"tags": ["scope:logger", "type:app-lib"]
@@ -44,11 +44,19 @@
 		"nginx": {
 			"tags": ["scope:nginx", "type:app-lib"]
 		},
-		"util": {
-			"tags": ["scope:util", "type:util"]
-		},
 		"store": {
 			"tags": ["scope:store", "type:store"]
+		},
+		"util": {
+			"tags": ["scope:util", "type:util"]
 		}
+	},
+	"targetDependencies": {
+		"build": [
+			{
+				"target": "build",
+				"projects": "dependencies"
+			}
+		]
 	}
 }
