@@ -11,30 +11,31 @@ import {
 	readFileToArray
 } from './file';
 
-// Mock a filesystem
-fsMock({
-	src: {
-		'srcfile1.txt': '',
-		'srcfile2.txt': '',
-		subfolder: {
-			'subfile.txt': ''
-		}
-	},
-	dest: {
-		'destfile.txt': ''
-	},
-	readfolder: {
-		'norows.txt': '',
-		'2rowsWithoutTrailingEmptyLine.txt': 'row1\r\nrow2',
-		'2rowsWithTrailingEmptyLine.txt': 'row1\r\nrow2\r\n'
-	}
-});
-
 logger.warn = jest.fn();
 
 describe('file', () => {
 	describe('using mockFs', () => {
-		afterAll(() => fsMock.restore());
+		beforeEach(() => {
+			// Mock a filesystem
+			fsMock({
+				src: {
+					'srcfile1.txt': '',
+					'srcfile2.txt': '',
+					subfolder: {
+						'subfile.txt': ''
+					}
+				},
+				dest: {
+					'destfile.txt': ''
+				},
+				readfolder: {
+					'norows.txt': '',
+					'2rowsWithoutTrailingEmptyLine.txt': 'row1\r\nrow2',
+					'2rowsWithTrailingEmptyLine.txt': 'row1\r\nrow2\r\n'
+				}
+			});
+		});
+		afterEach(() => fsMock.restore());
 
 		describe('copyFolderSync', () => {
 			it('should copy files with subfolder to existing destination', () => {

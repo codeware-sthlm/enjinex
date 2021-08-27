@@ -2,7 +2,8 @@
 
 Enhancements
 
-  - New PR workflow with code coverage
+- New PR workflow with code coverage
+- Upgrade Nx to 12.8
 
 # 1.0-RC1 (2021-02-23)
 
