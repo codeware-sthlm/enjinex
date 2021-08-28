@@ -50,5 +50,7 @@ isolated-test/nginx*
 logs
 test
 
-# Nx migrations
+# Nx
+dep-graph.html
 migrations.json
+/static

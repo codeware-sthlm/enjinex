@@ -1,89 +1,139 @@
 # Run lint, test and build on pull requests,
 # to make sure PR is ready for merge
 
-name: Pull Request
+name: Pull request
 
 on:
-  workflow_dispatch: {}
   pull_request:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v2.4.0
-        with:
-          node-version: 14
-      - name: Install dependencies
-        run: |
-          cd project
-          yarn install
-      - name: Lint affected files
-        run: |
-          cd project
-          yarn nx affected --target=lint --parallel
-
-  test:
-    name: Test
+  guard:
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        node-version:
-          - 14
-        platform:
+        os:
           - ubuntu-latest
           - macos-latest
           #- windows-latest
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v2.4.0
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: |
-          cd project
-          yarn install
-      - name: Run affected tests
-        run: |
-          cd project
-          yarn nx affected --target=test --parallel --codeCoverage
-      - name: Publish coverage
-        uses: codecov/codecov-action@v2.0.3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./project/coverage
+        include:
+          - os: ubuntu-latest
+            os-name: ubuntu
+          - os: macos-latest
+            os-name: osx
+          # - os: windows-latest
+          #  os-name: windows
+        node-version:
+          - '14'
+          - '15'
+        package-manager:
+          - npm
+          - yarn
+          - pnpm
+        # packages:
+        # exclude:
+        target:
+          - lint
+          - test
+          - build
+      fail-fast: false
 
-  build:
-    name: Build
-    needs: [lint, test]
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os-name }}.v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v2.4.0
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
         with:
-          node-version: 14
-      - name: Install dependencies
+          node-version: ${{ matrix.node-version }}
+
+      - name: Yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache yarn
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ matrix.os }}-node-${{ matrix.node-version }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ matrix.os }}-node-${{ matrix.node-version }}-yarn-
+
+      - name: Install packages
         run: |
           cd project
-          yarn install
-      - name: Build affected apps and libs
+          yarn install --prefer-offline --non-interactive
+
+      - name: Cleanup
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          # Workaround to provide additional free space for testing.
+          # https://github.com/actions/virtual-environments/issues/2840
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo apt-get install lsof
+          echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - name: Install PNPM
+        if: ${{ matrix.package-manager == 'pnpm' }}
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.9.1
+
+      - name: Install applesimutils, reset ios simulators
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          HOMEBREW_NO_AUTO_UPDATE=1 brew tap wix/brew >/dev/null
+          brew install applesimutils
+          xcrun simctl shutdown all && xcrun simctl erase all
+
+      - name: Run affected ${{ matrix.target }}
         run: |
           cd project
-          yarn nx affected --target=build --prod --parallel
+          yarn nx affected --target=${{ matrix.target }} --parallel
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+
+      # TODO: Move to master action
+      # - name: Publish coverage
+      #   if: ${{ matrix.target == 'test' && matrix.os-name == 'ubuntu' && matrix.node-version == '14' }}
+      #   uses: codecov/codecov-action@v2.0.3
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     directory: ./project/coverage
+
+      - name: Setup tmate session
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled && failure() }}
+        uses: mxschmitt/action-tmate@v3
+        with:
+          sudo: ${{ matrix.os != 'windows-latest' }} # disable sudo for windows debugging
+
+  report:
+    if: ${{ always() && github.repository_owner == 'trekkilabs' && github.event_name != 'workflow_dispatch' }}
+    needs: guard
+    runs-on: ubuntu-latest
+    name: Report status
+    steps:
+      - name: Send notification
+        uses: ravsamhq/notify-slack-action@v1
+        with:
+          status: ${{ needs.guard.result }}
+          message_format: '{emoji} *{workflow}* {status_message} (last commit <{commit_url}|{commit_sha}>)'
+          notification_title: '{workflow} has {status_message}'
+          footer: '<{run_url}|View Run>'
+          mention_users: 'U012ACMUZHS'
+          mention_users_when: 'failure,warnings'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

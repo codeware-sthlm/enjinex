@@ -130,7 +130,7 @@ describe('file', () => {
 
 	describe('findFilesFlat', () => {
 		it('should provide empty path and default to root', () => {
-			expect(findFilesFlat('').length).toBe(findFilesFlat('./').length);
+			expect(findFilesFlat('').pop().startsWith('./')).toBeTruthy();
 		});
 
 		it('should find spec file only', () => {
