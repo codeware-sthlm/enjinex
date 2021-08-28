@@ -1,0 +1,134 @@
+name: Merge and deploy
+
+#
+# > Lint and test push to master
+# > Build and deploy to Docker Hub
+#
+# - Supported architectures -
+#
+# > AMD64     - AMD 64-bit x86 (Most platforms and the default architecture)
+# > ARM64     - ARM 64-bit (Raspberry Pi 3 and later)
+# > ARMv7     - ARM 32-bit (Raspberry Pi 2 Model B)
+#
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.*'
+      - '**/.*'
+      - project/tools/**
+    tags:
+      - 'v*'
+
+jobs:
+  guard:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        include:
+          - os: ubuntu-latest
+            os-name: ubuntu
+        node-version:
+          - '14'
+        package-manager:
+          - yarn
+        target:
+          - lint
+          - test
+          - build
+      fail-fast: true
+
+    name: ${{ matrix.os-name }}.v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install packages
+        run: |
+          cd project
+          yarn install --prefer-offline --non-interactive
+
+      - name: Run affected ${{ matrix.target }}
+        run: |
+          cd project
+          yarn nx affected --target=${{ matrix.target }} --parallel
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+
+  deploy:
+    name: Deploy to Docker Hub
+    if: ${{ contains(github.ref, 'master') && github.event == 'push tag' }}
+    needs: guard
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+
+      - name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v3.5.0
+        with:
+          images: ${{ github.repository }}/enjinex
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./project
+          file: ./project/Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          # Always push as latest tag, Docker Hub builds the image tagged with version
+          tags: ${{ steps.docker_meta.outputs.args.DOCKER_META_IMAGES }}:latest
+          labels: ${{ steps.docker_meta.outputs.labels }}
+
+  report:
+    if: ${{ always() && github.repository_owner == 'trekkilabs' && github.event_name != 'workflow_dispatch' }}
+    needs: deploy
+    runs-on: ubuntu-latest
+    name: Report status
+    steps:
+      - name: Send notification
+        uses: ravsamhq/notify-slack-action@v1
+        with:
+          status: ${{ needs.deploy.result }}
+          message_format: '{emoji} *{workflow}* {status_message} (last commit <{commit_url}|{commit_sha}>)'
+          notification_title: '{workflow} has {status_message}'
+          footer: '<{run_url}|View Run>'
+          mention_users: 'U012ACMUZHS'
+          mention_users_when: 'failure,warnings'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

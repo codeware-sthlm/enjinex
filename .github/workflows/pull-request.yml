@@ -32,6 +32,7 @@ jobs:
           #  os-name: windows
         node-version:
           - '14'
+          - '15'
         package-manager:
           - npm
           - yarn
@@ -44,7 +45,7 @@ jobs:
           - build
       fail-fast: false
 
-    name: ${{ matrix.os-name }}/n v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
+    name: ${{ matrix.os-name }}.v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -128,7 +129,7 @@ jobs:
       - name: Send notification
         uses: ravsamhq/notify-slack-action@v1
         with:
-          status: ${{ needs.e2e.result }}
+          status: ${{ needs.guard.result }}
           message_format: '{emoji} *{workflow}* {status_message} (last commit <{commit_url}|{commit_sha}>)'
           notification_title: '{workflow} has {status_message}'
           footer: '<{run_url}|View Run>'
