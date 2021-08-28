@@ -17,7 +17,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Run a security audit
-        run: npx audit-ci --critical --report-type summary
+        run: |
+          cd project
+          npx audit-ci --critical --report-type summary
 
       - name: Report Status
         if: ${{ always() && github.repository_owner == 'trekkilabs' }}
