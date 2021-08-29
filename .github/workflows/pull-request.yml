@@ -1,12 +1,11 @@
 name: Pull Request
 
-# Run lint, test and build on pull request commits, to make sure PR is ready for merge.
+# Run lint, test and build on new pull request or pushed commits, to make sure PR is ready for merge.
 # Run with Yarn on Ubuntu using Node 14.
 
 on:
   pull_request:
-    types:
-      - synchronize
+    types: [opened, synchronize]
   workflow_dispatch:
     inputs:
       debug_enabled:
