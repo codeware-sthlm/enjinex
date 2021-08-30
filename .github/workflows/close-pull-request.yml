@@ -53,28 +53,28 @@ jobs:
           - build
         exclude:
           - os: ubuntu-latest
-            node_version: '14'
-            package_manager: pnpm
+            node-version: '14'
+            package-manager: pnpm
           - os: ubuntu-latest
-            node_version: '15'
-            package_manager: npm
+            node-version: '15'
+            package-manager: npm
           - os: ubuntu-latest
-            node_version: '15'
-            package_manager: yarn
+            node-version: '15'
+            package-manager: yarn
           - os: ubuntu-latest
-            node_version: '16'
-            package_manager: npm
+            node-version: '16'
+            package-manager: npm
           - os: ubuntu-latest
-            node_version: '16'
-            package_manager: yarn
+            node-version: '16'
+            package-manager: yarn
           - os: macos-latest
-            node_version: '14'
+            node-version: '14'
           - os: macos-latest
-            node_version: '15'
+            node-version: '15'
           - os: macos-latest
-            package_manager: yarn
+            package-manager: yarn
           - os: macos-latest
-            package_manager: pnpm
+            package-manager: pnpm
       fail-fast: false
 
     name: ${{ matrix.os-name }}.v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
