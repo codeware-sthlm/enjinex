@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd project
+
+yarn lint
+yarn format:check
+yarn nx affected:test

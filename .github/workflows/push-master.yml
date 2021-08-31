@@ -1,7 +1,7 @@
-name: Close Pull Request
+name: Push Master
 
 #
-# A pull request has been merged to master branch.
+# A pull request has been merged to master branch (since direct push to master is denied).
 # Run linting, unit tests and build before deploying to Docker Hub.
 #
 # - Image supported architectures -
@@ -12,9 +12,9 @@ name: Close Pull Request
 #
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branch:
+      - master
   workflow_dispatch:
     inputs:
       deploy_enabled:
@@ -23,8 +23,7 @@ on:
         default: false
 
 jobs:
-  merged:
-    if: github.event.pull_request.merged == true
+  test-and-build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -135,7 +134,7 @@ jobs:
 
   deploy:
     name: Deploy to Docker Hub
-    needs: merged
+    needs: test-and-build
     runs-on: ubuntu-latest
 
     steps:
