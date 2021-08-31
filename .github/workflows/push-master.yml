@@ -13,7 +13,7 @@ name: Push Master
 
 on:
   push:
-    branch:
+    branches:
       - master
   workflow_dispatch:
     inputs:
