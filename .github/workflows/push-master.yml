@@ -1,7 +1,7 @@
-name: Close Pull Request
+name: Push Master
 
 #
-# A pull request has been merged to master branch.
+# A pull request has been merged to master branch (since direct push to master is denied).
 # Run linting, unit tests and build before deploying to Docker Hub.
 #
 # - Image supported architectures -
@@ -12,9 +12,9 @@ name: Close Pull Request
 #
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - master
   workflow_dispatch:
     inputs:
       deploy_enabled:
@@ -23,8 +23,7 @@ on:
         default: false
 
 jobs:
-  merged:
-    if: github.event.pull_request.merged == true
+  test-and-build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -53,28 +52,28 @@ jobs:
           - build
         exclude:
           - os: ubuntu-latest
-            node-version: '14'
-            package-manager: pnpm
+            node_version: '14'
+            package_manager: pnpm
           - os: ubuntu-latest
-            node-version: '15'
-            package-manager: npm
+            node_version: '15'
+            package_manager: npm
           - os: ubuntu-latest
-            node-version: '15'
-            package-manager: yarn
+            node_version: '15'
+            package_manager: yarn
           - os: ubuntu-latest
-            node-version: '16'
-            package-manager: npm
+            node_version: '16'
+            package_manager: npm
           - os: ubuntu-latest
-            node-version: '16'
-            package-manager: yarn
+            node_version: '16'
+            package_manager: yarn
           - os: macos-latest
-            node-version: '14'
+            node_version: '14'
           - os: macos-latest
-            node-version: '15'
+            node_version: '15'
           - os: macos-latest
-            package-manager: yarn
+            package_manager: yarn
           - os: macos-latest
-            package-manager: pnpm
+            package_manager: pnpm
       fail-fast: false
 
     name: ${{ matrix.os-name }}.v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
@@ -135,7 +134,7 @@ jobs:
 
   deploy:
     name: Deploy to Docker Hub
-    needs: merged
+    needs: test-and-build
     runs-on: ubuntu-latest
 
     steps:
