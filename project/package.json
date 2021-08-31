@@ -28,8 +28,7 @@
 		"help": "nx help",
 		"dep-graph:html": "nx dep-graph --focus=init --file=dep-graph.html",
 		"lint:all": "nx run-many --target=lint --all",
-		"test:all": "nx run-many --target=test --all",
-		"prepare": "is-ci || cd .. && pwd && husky install ./project/.husky"
+		"test:all": "nx run-many --target=test --all"
 	},
 	"author": "Håkan Ströberg",
 	"license": "MIT",
