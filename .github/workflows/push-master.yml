@@ -38,11 +38,11 @@ jobs:
             os-name: osx
           # - os: windows-latest
           #  os-name: windows
-        node-version:
+        node_version:
           - '14'
           - '15'
           - '16'
-        package-manager:
+        package_manager:
           - npm
           - yarn
           - pnpm
@@ -76,17 +76,17 @@ jobs:
             package_manager: pnpm
       fail-fast: false
 
-    name: ${{ matrix.os-name }}.v${{ matrix.node-version }}/${{ matrix.package-manager }} - ${{ matrix.target }}
+    name: ${{ matrix.os-name }}.v${{ matrix.node_version }}/${{ matrix.package_manager }} - ${{ matrix.target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node_version }}
 
       - name: Install packages
         run: |
@@ -106,7 +106,7 @@ jobs:
           echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
       - name: Install PNPM
-        if: ${{ matrix.package-manager == 'pnpm' }}
+        if: ${{ matrix.package_manager == 'pnpm' }}
         uses: pnpm/action-setup@v2.0.1
         with:
           version: 6.9.1
@@ -126,7 +126,7 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=8192
 
       - name: Publish coverage
-        if: ${{ matrix.target == 'test' && matrix.os-name == 'ubuntu' && matrix.node-version == '14' }}
+        if: ${{ matrix.target == 'test' && matrix.os-name == 'ubuntu' && matrix.node_version == '14' }}
         uses: codecov/codecov-action@v2.0.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
