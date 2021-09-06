@@ -1,9 +1,14 @@
-# 1.0-RC2 (2021-xx-xx)
+# 1.0 (2021-09-06)
 
 Enhancements
 
-- New PR workflow with code coverage
 - Upgrade Nx to 12.8
+- Various code scanning fixes
+
+Misc
+
+- Refactor workflows
+- Only deploy images to Docker Hub (multi-arch)
 
 # 1.0-RC1 (2021-02-23)
 
