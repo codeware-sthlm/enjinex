@@ -1,0 +1,40 @@
+name: Code Coverage
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+
+jobs:
+  codecov:
+    if: ${{ endsWith(github.ref,'master') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install packages
+        run: |
+          cd project
+          yarn install --non-interactive
+
+      - name: Run tests
+        run: |
+          cd project
+          yarn nx run-many --target=test --parallel --all
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+
+      - name: Publish coverage
+        uses: codecov/codecov-action@v2.0.3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./project/coverage
+          verbose: true
