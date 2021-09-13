@@ -129,7 +129,7 @@ jobs:
 
       - name: Publish coverage
         if: ${{ matrix.target == 'test' && matrix.os-name == 'ubuntu' && matrix.node_version == '14' }}
-        uses: codecov/codecov-action@v2.0.3
+        uses: codecov/codecov-action@v2.1.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./project/coverage
