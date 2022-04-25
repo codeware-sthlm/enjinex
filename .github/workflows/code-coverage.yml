@@ -33,7 +33,7 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=8192
 
       - name: Publish coverage
-        uses: codecov/codecov-action@v2.0.3
+        uses: codecov/codecov-action@v3.1.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./project/coverage
